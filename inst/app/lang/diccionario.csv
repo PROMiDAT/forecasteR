@@ -1,0 +1,89 @@
+key;es;en
+serie;Serie de Tiempo;Time Series
+data;Datos;Data
+date;Fechas;Date
+cargar;Cargar;Load
+header;Nombre de Variables;Variables names 
+separador;Separador;Separator
+separadordec;Separador Decimal;Decimal Separator
+cargarchivo;Cargar Archivo;Load Archive
+subir;Subir;Upload
+cargar;Cargar;Load
+selvalor;Seleccione la columna con los datos:;Select data column:
+selfecha;Seleccione la columna con las fechas:;Select date column:
+seltipo;Los datos vienen de forma:;The data comes:
+selrango;Indique el rango de fechas:;Indicate the date range:
+hasta;hasta;to
+sel;Seleccionar;Choose
+cre;Crear;Create
+anual;Anual;Yearly
+mes;Mensual;Monthly
+dia;Diaria;Daily
+hora;Por hora;Hourly
+minuto;Por minuto;By minute
+segundo;Por segundo;By second
+selpatron;Seleccione el Patrón-Estacional:;Select Seasonal-Pattern:
+fecha;Fecha;Date
+valor;Valor;Value
+numerico;Númerico;Numeric
+categorico;Categórico;Categoric
+train;Entrenamiento;Train
+test;Prueba;Test
+opciones;Opciones;Options
+ejecutar;Ejecutar;Run
+basico;Análisis Exploratorio;Exploratory Analisys
+norm;Test de Normalidad;Normality Test
+plotnormal;Gráfico Normalidad;Normal Plot
+histograma;Histograma;Histogram
+curvanormal;Curva Normal;Normal Curve
+selcolbar;Seleccione el color de la barra:;Select bar color:
+selcolline;Seleccione el color de la linea:;Select line color:
+selcolpoint;Seleccione el color del punto:;Select point color:
+t_c;Tendencia y Ciclicidad;Trend and Cyclicality
+tend;Tendencia;Trend
+colts;Seleccione el color de la Serie de Tiempo:;Select Time Series color:
+coltend;Seleccione el color de la Tendencia:;Select Trend color:
+colcicl;Seleccione el color de la Ciclicidad:;Select Cyclicality color:
+cicl;Ciclicidad;Cyclicality
+desc;Descomposición;Decomposition
+colseas;Seleccione el color de la Estacionalidad:;Select Seasonal color:
+colresi;Seleccione el color del Residual:;Select Residual color:
+peri;Periodograma;Periodogram
+selperi;Seleccione el Periodo:;Select the Period:
+selbest;Seleccione el número de periodo más importante:;Select the most important period number:
+colperi;Seleccione el color del Periodograma:;Select Periodogram color:
+colbest;Seleccione el color del mejor Periodo:;Select Best Period color:
+acercade;Acerca De;About
+idioma;Idioma;Language
+selidioma;Seleccionar Idioma:;Select Language
+sig;Siguiente;Next
+ant;Anterior;Previous
+apre;Aprendizaje Supervisado;Supervised Learning
+comp;Comparación de Modelos;Model Comparison
+mean;Promedio;Mean
+naiv;Ingenuo;Naive
+snai;Estacional Ingenuo;Seasonal Naive
+drif;Desvío;Drift
+reds;Redes Neuronales;Neural Networks
+text_m;Modelo;Model
+table_m;Predicción;Prediction
+coltrain;Seleccione el color del Entrenamiento:;Select Train color:
+coltest;Seleccione el color de la Prueba:;Select Test color:
+colpred;Seleccione el color de la Predicción:;Select Prediction color:
+plot_m;Gráfico de la Predicción;Prediction Plot
+error_m;Índices Generales;General indexes
+mse;Error Cuadrático Medio;Mean Square Error
+rmse;Raiz de Error Cuadrático Medio;Root Mean Square Error
+pfa;Porcentaje de Fallos hacia Arriba;Percentage of Failures Up
+ptfa;Porcentaje del Total de Fallos hacia Arriba;Percentage of Total Failures Up
+diff;Diferencia;Difference
+tamred;Selecciona la cantidad de capas ocultas:;Select the number of hidden layers:
+cali;Calibrar;Calibrate
+calip;Calibrar Parámetros;Calibrate Parameters
+paso;Seleccione el paso:;Select the step:
+lar;Seleccione hasta dónde probar (p, d, q):;Select how far to test (p, d, q):
+les;Seleccione hasta dónde probar (P, D, Q):;Select how far to test (P, D, Q):
+corre;Correlograma;Correlogram
+copyright;TODOS LOS DERECHOS RESERVADOS A;ALL RIGHTS RESERVED TO
+info;MÁS INFORMACIÓN;MORE INFORMATION
+version;VERSIÓN DEL SISTEMA;SYSTEM VERSION
