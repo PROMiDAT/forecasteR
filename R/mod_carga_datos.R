@@ -15,7 +15,7 @@ mod_carga_datos_ui <- function(id) {
   tagList(
     div(
       id = ns("cargadf"),
-      div(col_10(
+      div(col_11(
         box(
           title = labelInput("data"), status = "primary", width = 12,
           solidHeader = TRUE, collapsible = TRUE,
@@ -34,17 +34,18 @@ mod_carga_datos_ui <- function(id) {
           ), hr(),
           actionButton(ns("loadButton"), labelInput("cargar"), width = "100%"),
           footer = div(
+            style = "height: 50vh;",
             withLoader(DT::dataTableOutput(ns('tabladatos')), 
                        type = "html", loader = "loader4"))
         )),
-        col_2(actionButton(ns("btn_next"), labelInput("sig"), style = btn_s_n))
+        col_1(actionButton(ns("btn_next"), NULL, icon("forward"), style = btn_s_n))
       )
     ),
     div(
       id = ns("cargatsdf"), style = "display: none;",
       div(
-        col_2(actionButton(ns("btn_prev"), labelInput("ant"), style = btn_s)),
-        col_8(box(
+        col_1(actionButton(ns("btn_prev"), NULL, icon("backward"), style = btn_s)),
+        col_10(box(
           title = labelInput("cargar"), status = "primary", width = 12,
           solidHeader = TRUE, collapsible = TRUE,
           fluidRow(
@@ -73,17 +74,18 @@ mod_carga_datos_ui <- function(id) {
                                       width = "100%"))
           ),
           footer = div(
+            style = "height: 46vh;",
             withLoader(DT::dataTableOutput(ns('seriedatos')), 
                        type = "html", loader = "loader4"))
         )),
-        col_2(actionButton(ns("btn_next2"), labelInput("sig"), style = btn_s_n))
+        col_1(actionButton(ns("btn_next2"), NULL, icon("forward"), style = btn_s_n))
       )
     ),
     div(
       id = ns("cargats"), style = "display: none;",
       div(
-        col_2(actionButton(ns("btn_prev2"), labelInput("ant"), style = btn_s)),
-        col_10(box(
+        col_1(actionButton(ns("btn_prev2"), NULL, icon("backward"), style = btn_s)),
+        col_11(box(
           title = labelInput("cargar"), status = "primary", 
           width = 12, solidHeader = T, collapsible = T,
           fluidRow(
@@ -93,7 +95,7 @@ mod_carga_datos_ui <- function(id) {
               div(style = 'float: right; color: #91cc75;', labelInput('test'))),
               5, 95, 80, 5))), hr(),
             actionButton(ns("tsButton"), labelInput("cargar"), width = "100%"),
-          footer = echarts4rOutput(ns('plot_ts'), height = "60vh")
+          footer = echarts4rOutput(ns('plot_ts'), height = "55vh")
         ))
       )
     )

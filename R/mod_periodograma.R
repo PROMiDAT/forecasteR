@@ -43,12 +43,14 @@ mod_periodograma_server <- function(input, output, session, updateData) {
   #' Gráfico de Periodograma
   output$plot_periodo <- renderEcharts4r({
     serie <- updateData$seriets
+    lg    <- updateData$idioma
     
     mejor    <- input$sel_best
     col_ts2  <- input$col_ts2
     col_best <- input$col_best
     
-    plot_periods(serie, mejor) %>% e_color(c(col_ts2, col_best))
+    txt <- c(tr('txtbest', lg), tr('txtfreq', lg), tr('txtperi', lg))
+    plot_periods(serie, mejor, txt) %>% e_color(c(col_ts2, col_best))
   })
 }
     

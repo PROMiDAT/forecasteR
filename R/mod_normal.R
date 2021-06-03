@@ -112,15 +112,14 @@ mod_normal_server <- function(input, output, session, updateData) {
   output$calc_normal <- DT::renderDT({
     datos <- updateData$seriedf[[2]]
     alfa  <- as.numeric(input$slide_inter)
-    noms  <- c(tr('asimetria', isolate(updateData$idioma)),
-               tr('normalidad', isolate(updateData$idioma)),
-               tr('sigue', isolate(updateData$idioma)),
-               tr('pvalue', isolate(updateData$idioma)),
-               tr('tasim', isolate(updateData$idioma)))
+    lg    <- updateData$idioma
+    noms  <- c(tr('asimetria', lg), tr('normalidad', lg), tr('sigue', lg), 
+               tr('pvalue', lg), tr('tasim', lg), tr('serie', lg))
     
     tryCatch({
       #updateAceEditor(session, "fieldCalcNormal", value = "dfnormal(datos)")
       res <- dfnormal(data.frame(diff(datos)))
+      rownames(res) <- noms[6]
       
       res <- res[, c(1, 5)]
       res <- round(res, 3)

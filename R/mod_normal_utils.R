@@ -30,7 +30,7 @@ e_histnormal <- function(data, colorbar = "steelblue", colorline = "gray",
   )
   
   distribu %>% e_charts(x) %>% e_bar(d, name = nombres[1]) %>% 
-    e_line(n, name = nombres[2]) %>% e_x_axis(scale = T) %>%
+    e_line(n, name = nombres[2], smooth = T) %>% e_x_axis(scale = T) %>%
     e_axis_labels(x = "", y = "Densidad") %>% 
     e_color(c(colorbar, colorline)) %>% e_tooltip() %>% 
     e_datazoom(show = F) %>% e_show_loading()

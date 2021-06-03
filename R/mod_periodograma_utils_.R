@@ -19,40 +19,53 @@ df_periods <- function(x) {
 #'
 #' @param x a ts object.
 #' @param p which important period to plot.
+#' @param txt vector of lenght 3 to indicate the text to use.
 #' @author Diego Jimenez <diego.jimenez@promidat.com>
 #' @return echarts4r plot
 #' @export plot_periods
 #' @examples
 #' plot_periods(AirPassengers)
 #' 
-plot_periods <- function(x, p = NULL) {
+plot_periods <- function(x, p = NULL, txt = NULL) {
   df    <- df_periods(x)
   mejor <- df[df$pos.max[df$pos.max != 1][p], ]
   
-  res <- df %>% e_charts(per) %>% e_line(spec) %>% e_datazoom(type = "slider") %>% 
-    e_x_axis(scale = T) %>% e_y_axis(scale = T) %>% e_show_loading() %>% 
-    e_legend(show = F) %>% e_tooltip(
-      formatter = htmlwidgets::JS(paste0(
-        "function(params){\n",
-        "  return('Spec: ' + params.value[1].toFixed(2) + '<br/>Periodo: ' + params.value[0].toFixed(2))\n",
-        "}"))
-    )
+  if(is.null(txt)) {
+    txt <- c("º most important period is ", "Frecuency", "Period")
+  }
+  
+  opts <- list(
+    tooltip = list(trigger = 'none', axisPointer = list(type = 'cross')),
+    xAxis = list(
+      list(type = "category", data = round(df$freq, 3),
+           axisPointer = list(label = list(formatter = htmlwidgets::JS(paste0(
+             "function(params){return('", txt[2], ": ' + params.value)}"))))
+      ),
+      list(type = "category", data = round(df$per, 3),
+           axisPointer = list(label = list(formatter = htmlwidgets::JS(paste0(
+             "function(params){return('", txt[3], ": ' + params.value)}"))))
+      )
+    ),
+    yAxis = list(type = "value"),
+    series = list(list(type = "line", data = df$spec))
+  )
+  
+  res <- e_charts() %>% e_list(opts) %>% e_datazoom(type = "slider") %>% 
+    e_x_axis(scale = T) %>% e_y_axis(scale = T) %>% e_show_loading()
   
   if(!is.null(p)) {
     if(p != 0) {
-      res$x$opts$series[[2]] <- list(
-        data = list(list(value = c(mejor$per, mejor$spec))), 
+      res$x$opts$series[[3]] <- list(
+        data = list(list(value = c(which(df$freq == mejor$freq) - 1, mejor$spec))),
         type = "scatter", symbolSize = 15,
-        labelLayout = list(
-          y = 20, align = 'center', hideOverlap = T, moveOverlap = 'shiftX'
-        ),
+        labelLayout = list(x = '70%', moveOverlap = 'shiftY'),
         labelLine = list(
           show = T, length2 = 5, lineStyle = list(width = 3, color = '#bbb')
         ),
         label = list(
           formatter = htmlwidgets::JS(paste0(
             "function(params){\n", 
-            "  return 'El ", p, "º Periodo más importante es ", round(mejor$per, 2),
+            "  return '", p, txt[1], round(mejor$per, 2),
             "'\n}"
           )), show = T, minMargin = 10, position = 'top'
         )

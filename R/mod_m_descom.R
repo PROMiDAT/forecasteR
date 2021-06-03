@@ -113,7 +113,7 @@ mod_m_descom_server <- function(input, output, session, updateData, rvmodelo) {
     serie <- data.frame(ts.union(train, test, pred))
     serie$fecha <- isolate(updateData$seriedf)[[1]]
     colnames(serie) <- c("train", "test", "pred", "fecha")
-    colores <- ic(input$col_train_desc, input$col_test_desc, input$col_p_desc)
+    colores <- c(input$col_train_desc, input$col_test_desc, input$col_p_desc)
     
     tryCatch({
       serie %>% e_charts(x = fecha) %>% 

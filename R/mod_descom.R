@@ -55,7 +55,10 @@ mod_descom_server <- function(input, output, session, updateData){
     col_seas <- input$col_seas
     col_resi <- input$col_resi
     
-    e_decompose(serie, datos[[1]]) %>% 
+    lg    <- updateData$idioma
+    noms  <- c(tr('serie', lg), tr('tend', lg), tr('seas', lg), tr('resi', lg))
+    
+    e_decompose(serie, datos[[1]], noms) %>% 
       e_color(c(col_hist, col_tend, col_seas, col_resi))
   })
 }

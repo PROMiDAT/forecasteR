@@ -21,7 +21,7 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     
     dashboardPage(
-      title = "PROMiDAT - forecastR",
+      title = "PROMiDAT - forecasteR",
       dashboardHeader(
         title = HTML(paste0(
           '<span class = "logo-lg">
@@ -36,30 +36,31 @@ app_ui <- function(request) {
       dashboardSidebar(
         sidebarMenu(
           id = "principal",
-          tags$div(style="padding-top:10px;"),
+          tags$div(style = "padding-top:10px;"),
           menuItem(labelInput("data"), tabName = "cargar",
                    icon = icon("dashboard")),
           menuItem(
             labelInput("basico"), tabName = "parte1",
             icon = icon("th-list"),
-            menuSubItem(labelInput("norm"), "norm", icon = icon("bar-chart")),
-            menuSubItem(labelInput("t_c"), "t_c", icon = icon("line-chart")),
-            menuSubItem(labelInput("desc"), "desc", icon = icon("area-chart")),
-            menuSubItem(labelInput("peri"), "peri", icon = icon("table"))
+            menuSubItem(labelInput("norm"), "norm", icon = icon("area-chart")),
+            menuSubItem(labelInput("t_c"),  "t_c", icon = icon("line-chart")),
+            menuSubItem(labelInput("desc"), "desc", icon = icon("puzzle-piece")),
+            menuSubItem(labelInput("peri"), "peri", icon = icon("sliders"))
           ),
           menuItem(
             labelInput("apre"), tabName = "parte2",
             icon = icon("th-list"),
-            menuSubItem(labelInput("mean"), "mean", icon = icon("bar-chart")),
-            menuSubItem(labelInput("naiv"), "naiv", icon = icon("line-chart")),
+            menuSubItem(labelInput("mean"), "mean", icon = icon("adjust")),
+            menuSubItem(labelInput("naiv"), "naiv", icon = icon("long-arrow-right")),
             menuSubItem(labelInput("snai"), "snai", icon = icon("area-chart")),
-            menuSubItem(labelInput("drif"), "drif", icon = icon("table")),
-            menuSubItem(labelInput("desc"), "deco", icon = icon("table")),
-            menuSubItem(labelInput("reds"), "reds", icon = icon("table")),
-            menuSubItem("Holt-Winters", "h_w", icon = icon("table")),
-            menuSubItem("ARIMA", "arim", icon = icon("table"))
+            menuSubItem(labelInput("drif"), "drif", icon = icon("line-chart")),
+            menuSubItem(labelInput("desc"), "deco", icon = icon("puzzle-piece")),
+            menuSubItem(labelInput("reds"), "reds", icon = icon("brain")),
+            menuSubItem("Holt-Winters", "h_w", icon = icon("industry")),
+            menuSubItem("ARIMA", "arim", icon = icon("bar-chart"))
           ),
           menuItem(labelInput("comp"), tabName = "comp", icon = icon("eye")),
+          menuItem(labelInput("news"), tabName = "news", icon = icon("magic")),
           menuItem(labelInput("acercade"), tabName = "acercaDe",
                    icon = icon("info")),
           hr(),
@@ -118,6 +119,9 @@ app_ui <- function(request) {
           # Comparación de Datos
           tabItem(tabName = "comp",  mod_comparacion_ui("comparacion_ui_1")),
           
+          # Predicción de Individuos Nuevos
+          tabItem(tabName = "news",  mod_nuevos_ui("nuevos_ui_1")),
+          
           # Acerca De
           tabItem(tabName = "acercaDe", mod_acercade_ui("acercade_ui_1"))
         )
@@ -144,7 +148,7 @@ golem_add_external_resources <- function() {
     favicon(),
     bundle_resources(
       path = app_sys('app/www'),
-      app_title = 'forecastR'
+      app_title = 'forecasteR'
     ),
     
     shinyjs::useShinyjs()

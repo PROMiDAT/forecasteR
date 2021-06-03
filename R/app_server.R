@@ -33,7 +33,7 @@ app_server <- function( input, output, session ) {
   ###################################  Update  ################################
   #' Update on Language
   observeEvent(input$idioma, {
-    updateData$idioma = input$idioma
+    updateData$idioma <- input$idioma
     updateLabelInput(session, cambiar.labels(), tr(cambiar.labels(), input$idioma))
   })
   
@@ -52,10 +52,10 @@ app_server <- function( input, output, session ) {
   })
   
   ###################################  Modules  ###############################
-  callModule(mod_carga_datos_server, "carga_datos_ui_1", updateData, rvmodelo)
-  callModule(mod_normal_server, "normal_ui_1", updateData)
-  callModule(mod_t_c_server, "t_c_ui_1", updateData)
-  callModule(mod_descom_server, "descom_ui_1", updateData)
+  callModule(mod_carga_datos_server,  "carga_datos_ui_1",  updateData, rvmodelo)
+  callModule(mod_normal_server,       "normal_ui_1",       updateData)
+  callModule(mod_t_c_server,          "t_c_ui_1",          updateData)
+  callModule(mod_descom_server,       "descom_ui_1",       updateData)
   callModule(mod_periodograma_server, "periodograma_ui_1", updateData)
   
   callModule(mod_promedio_server,    "promedio_ui_1",    updateData, rvmodelo)
@@ -67,4 +67,5 @@ app_server <- function( input, output, session ) {
   callModule(mod_holtwinters_server, "holtwinters_ui_1", updateData, rvmodelo)
   callModule(mod_arima_server,       "arima_ui_1",       updateData, rvmodelo)
   callModule(mod_comparacion_server, "comparacion_ui_1", updateData, rvmodelo)
+  callModule(mod_nuevos_server,      "nuevos_ui_1",      updateData)
 }

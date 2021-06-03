@@ -2,6 +2,7 @@
 #'
 #' @param serie a ts object.
 #' @param f vector of dates for the time series.
+#' @param noms vector of names for y axis.
 #'
 #' @author Diego Jimenez <diego.jimenez@promidat.com>
 #' @return echarts4r plot
@@ -11,9 +12,12 @@
 #' @examples
 #' e_decompose(AirPassengers)
 #' 
-e_decompose <- function(serie, f = NULL) {
+e_decompose <- function(serie, f = NULL, noms = NULL) {
   if(is.null(f)) {
     f <- 1:length(serie)
+  }
+  if(is.null(noms)) {
+    noms <- c("History", "Trend", "Seasonal", "Residual")
   }
   d <- decompose(serie)
   d <- data.frame(f, v = d$x, t = d$trend, s = d$seasonal, r = d$random)
@@ -26,12 +30,12 @@ e_decompose <- function(serie, f = NULL) {
       list(data = f, gridIndex = 3)
     ),
     yAxis = list(
-      list(name = "History", nameTextStyle = list(fontWeight = 'bold')),
-      list(gridIndex = 1, name = "Trend", 
+      list(name = noms[1], nameTextStyle = list(fontWeight = 'bold')),
+      list(gridIndex = 1, name = noms[2], 
            nameTextStyle = list(fontWeight = 'bold')),
-      list(gridIndex = 2, name = "Seasonal", 
+      list(gridIndex = 2, name = noms[3], 
            nameTextStyle = list(fontWeight = 'bold')),
-      list(gridIndex = 3, name = "Random", 
+      list(gridIndex = 3, name = noms[4], 
            nameTextStyle = list(fontWeight = 'bold'))
     ),
     grid = list(
