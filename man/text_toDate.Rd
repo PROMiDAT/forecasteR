@@ -10,13 +10,13 @@ text_toDate(f)
 \item{f}{a vector of character.}
 }
 \value{
-vector
+list
 }
 \description{
 Convert character to dates
 }
 \examples{
-text_toDate(iris)
+text_toDate("2021 january 30")
 
 }
 \author{

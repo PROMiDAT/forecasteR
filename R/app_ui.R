@@ -3,17 +3,16 @@
 #' @param request Internal parameter for `{shiny}`. 
 #'     DO NOT REMOVE.
 #' @import shiny
-#' @import shinyjs
 #' @import rlang
-#' @import forecast
-#' @import lubridate
+#' @import htmlwidgets
 #' @import shinydashboardPlus
 #' @import shinycustomloader
-#' @importFrom shinyjs hide show
 #' @importFrom colourpicker colourInput
 #' @importFrom DT tableHeader formatStyle
 #' @importFrom utils read.table write.csv
+#' @importFrom shinyjs useShinyjs show hide addClass removeClass runjs
 #' @importFrom shinydashboard dashboardBody menuItem menuSubItem sidebarMenu tabBox tabItem tabItems infoBox
+#' 
 #' @noRd
 app_ui <- function(request) {
   tagList(

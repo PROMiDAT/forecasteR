@@ -1,6 +1,6 @@
 Package: forecasteR
 Title: Time Series Forecast System
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     c(person(given = "Oldemar", family = "Rodriguez", role = c("aut", "cre"),
              email = "oldemar.rodriguez@ucr.ac.cr"),
@@ -9,20 +9,23 @@ Description: Performs a time series forecast.
 License: GPL (>=2)
 Imports:
     DT,
-    rlang,
-    config,
     golem,
+    config,
     forecast,
     htmltools,
     lubridate,
     stringr,
+    scales,
+    rlang,
     shiny,
     shinyjs,
     echarts4r,
+    htmlwidgets,
     colourpicker,
     shinydashboard,
     shinycustomloader,
     shinydashboardPlus (>= 2.0.0)
+Depends: R (>= 4.0)
 Encoding: UTF-8
 LazyData: true
 URL: https://www.promidat.com

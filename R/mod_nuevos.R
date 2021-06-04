@@ -7,6 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
+#' @importFrom stats ts.union
 mod_nuevos_ui <- function(id){
   ns <- NS(id)
   btn_s <- "width: 100%;float: right;background-color: #3c8dbc;color: white;"
@@ -180,7 +181,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     updateSelectInput("sel_model", session = session, choices = models)
   })
   
-  #' Hide/Show Menu
+  # Hide/Show Menu
   observeEvent(input$btn_prev3, {
     show(id = "newdf", anim = T, animType = "slide")
     hide(id = "newtsdf", anim = T, animType = "slide")
@@ -240,7 +241,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
   
   ############################# Carga de datos ################################
   
-  #' Función del botón n_loadButton
+  # Función del botón n_loadButton
   observeEvent(input$n_loadButton, {
     updateNew$modelo  <- NULL
     updateNew$datos   <- NULL
@@ -267,7 +268,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     })
   })
   
-  #' Actualizar tabla al cargar los datos
+  # Actualizar tabla al cargar los datos
   output$n_tabladatos <- DT::renderDataTable({
     datos  <- updateNew$datos
     nombre <- str_remove(isolate(input$n_file$name), '\\..[^\\.]*$')
@@ -302,7 +303,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     })
   }, server = F)
   
-  #' Actualiza opciones al cargar tabla de datos
+  # Actualiza opciones al cargar tabla de datos
   observeEvent(updateNew$datos, {
     datos     <- updateNew$datos
     numericos <- var.numericas(datos)
@@ -319,7 +320,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
   
   ############################# Carga Serie DF ################################
   
-  #' Generar input de fechas
+  # Generar input de fechas
   output$n_uifechas <- renderUI({
     if(input$n_tipofecha == "years") {
       f <- 'YYYY-01-01 00:00:00'
@@ -340,7 +341,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     )
   })
   
-  #' Actualizar fecha final
+  # Actualizar fecha final
   observeEvent(input$n_startdate, {
     tryCatch({
       tipofecha <- isolate(input$n_tipofecha)
@@ -360,7 +361,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     }, error = function(e) {})
   })
   
-  #' Actualizar fecha inicial
+  # Actualizar fecha inicial
   observeEvent(input$n_enddate, {
     tryCatch({
       tipofecha <- isolate(input$n_tipofecha)
@@ -380,7 +381,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     }, error = function(e) {})
   })
   
-  #' Función del botón tsdfButton
+  # Función del botón tsdfButton
   observeEvent(input$n_tsdfButton, {
     updateNew$seriedf <- NULL
     updateNew$seriets <- NULL
@@ -413,7 +414,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     })
   })
   
-  #' Actualizar la tabla al cargar la serie de datos df
+  # Actualizar la tabla al cargar la serie de datos df
   output$n_seriedatos <- DT::renderDataTable({
     datos  <- updateNew$seriedf
     idioma <- isolate(updateData$idioma)
@@ -437,7 +438,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     })
   }, server = F)
   
-  #' Actualiza las opciones al cargar tabla de datos
+  # Actualiza las opciones al cargar tabla de datos
   observeEvent(updateNew$seriedf, {
     if(is.null(updateNew$seriedf)) {
       hide(id = "btn_next4", anim = T, animType = "fade")
@@ -498,7 +499,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     })
   })
   
-  #' Grafico serie de tiempo
+  # Grafico serie de tiempo
   output$plot_n_ts <- renderEcharts4r({
     seriets <- updateNew$seriets
     serie   <- isolate(updateNew$seriedf)
@@ -516,7 +517,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     })
   })
   
-  #' Actualiza las opciones la serie de tiempo
+  # Actualiza las opciones la serie de tiempo
   observeEvent(updateNew$seriets, {
     if(is.null(updateNew$seriets)) {
       hide(id = "btn_next5", anim = T, animType = "fade")
@@ -578,7 +579,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     modelo
   })
   
-  #' Actualiza las opciones al cargar tabla de datos
+  # Actualiza las opciones al cargar tabla de datos
   observeEvent(updateNew$pred, {
     if(is.null(updateNew$pred)) {
       hide(id = "btn_next6", anim = T, animType = "fade")

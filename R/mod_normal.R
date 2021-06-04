@@ -66,11 +66,12 @@ mod_normal_ui <- function(id) {
 }
 
 #' normal Server Function
-#' @keywords internal
+#'
+#' @noRd 
 mod_normal_server <- function(input, output, session, updateData) {
   ns <- session$ns
   
-  #' Grafico Test de normalidad
+  # Grafico Test de normalidad
   output$plot_normal <- renderEcharts4r({
     input$run_normal
     datos     <- updateData$seriedf[[2]]
@@ -91,7 +92,7 @@ mod_normal_server <- function(input, output, session, updateData) {
     })
   })
   
-  #' Grafico qqplot + qqline
+  # Grafico qqplot + qqline
   output$plot_qq <- renderEcharts4r({
     datos      <- updateData$seriedf[[2]]
     colorPoint <- input$col_qq_point
@@ -108,7 +109,7 @@ mod_normal_server <- function(input, output, session, updateData) {
     })
   })
   
-  #' Resumen Test de normalidad
+  # Resumen Test de normalidad
   output$calc_normal <- DT::renderDT({
     datos <- updateData$seriedf[[2]]
     alfa  <- as.numeric(input$slide_inter)

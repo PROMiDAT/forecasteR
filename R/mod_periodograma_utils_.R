@@ -4,6 +4,7 @@
 #' @author Diego Jimenez <diego.jimenez@promidat.com>
 #' @return data.frame
 #' @export df_periods
+#' @importFrom stats spec.pgram frequency
 #' @examples
 #' df_periods(AirPassengers)
 #' 
@@ -23,6 +24,7 @@ df_periods <- function(x) {
 #' @author Diego Jimenez <diego.jimenez@promidat.com>
 #' @return echarts4r plot
 #' @export plot_periods
+#' @import echarts4r
 #' @examples
 #' plot_periods(AirPassengers)
 #' 
@@ -31,7 +33,7 @@ plot_periods <- function(x, p = NULL, txt = NULL) {
   mejor <- df[df$pos.max[df$pos.max != 1][p], ]
   
   if(is.null(txt)) {
-    txt <- c("º most important period is ", "Frecuency", "Period")
+    txt <- c(" most important period is ", "Frecuency", "Period")
   }
   
   opts <- list(

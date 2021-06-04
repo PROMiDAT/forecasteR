@@ -7,6 +7,9 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
+#' @importFrom stats arima acf pacf qnorm
+#' @importFrom forecast forecast
+#' 
 mod_arima_ui <- function(id){
   ns <- NS(id)
   

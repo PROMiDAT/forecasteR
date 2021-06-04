@@ -33,34 +33,34 @@ var.categoricas <- function(data) {
 #' @param f a vector of character.
 #'
 #' @author Diego Jimenez <diego.jimenez@promidat.com>
-#' @return vector
-#' @import stringr
+#' @return list
+#' @importFrom stringr str_extract str_replace str_remove str_to_lower
 #' @export text_toDate
 #' @examples
-#' text_toDate(iris)
+#' text_toDate("2021 january 30")
 #' 
 text_toDate <- function(f) {
   e <- list(y = NA, ms = NA, d = NA, h = NA, m = NA, s = NA)
-  meses <- c("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", 
-             "agosto", "septiembre", "octubre", "noviembre", "diciembre")
-  meses.abv <- str_extract(meses, "\\w{3}")
-  months <- c("january", "february", "march", "april", "may", "june", "july", 
-              "august", "september", "october", "november", "december")
-  months.abb <- str_extract(months, "\\w{3}")
+  meses <- c("enero" = 1, "febrero" = 2, "marzo" = 3, "abril" = 4, 
+             "mayo" = 5, "junio" = 6, "julio" = 7, "agosto" = 8, 
+             "septiembre" = 9, "octubre" = 10, "noviembre" = 11, "diciembre" = 12,
+             "january" = 1, "february" = 2, "march" = 3, "april" = 4, 
+             "may" = 5, "june" = 6, "july" = 7, "august" = 8, 
+             "september" = 9, "october" = 10, "november" = 11, "december" = 12)
   f <- str_to_lower(f)
   
   e[['y']] <- str_extract(f, "\\d{4}")
   f <- str_remove(f, "\\d{4}")
   
-  f  <- str_replace(f, "setiembre", "septiembre")
-  f  <- str_replace(f, "set", "sep")
-  e[['ms']] <- str_extract(f, paste(meses, collapse = "|"))
+  f <- str_replace(f, "setiembre", "septiembre")
+  f <- str_replace(f, "set", "sep")
+  e[['ms']] <- str_extract(f, paste(names(meses), collapse = "|"))
   if(any(is.na(e[['ms']]))) {
-    e[['ms']] <- str_extract(f, paste(meses.abv, collapse = "|"))
-    meses <- meses.abv
+    names(meses) <- str_extract(names(meses), "\\w{3}")
+    e[['ms']] <- str_extract(f, paste(meses, collapse = "|"))
   }
   if(!any(is.na(e[['ms']]))) {
-    e[['ms']] <- sapply(e[['ms']], function(m) which(m == meses))
+    e[['ms']] <- meses[e[["ms"]]]
   }
   
   aux <- str_extract(f, "\\d{2}")
@@ -99,6 +99,19 @@ text_toDate <- function(f) {
   return(res)
 }
 
+#' Get ts start of a time series
+#'
+#' @param ini a Date object.
+#' @param tipo_f type of the time series ('year', 'month', ..., 'seconds').
+#' @param patron frequency of time series.
+#'
+#' @author Diego Jimenez <diego.jimenez@promidat.com>
+#' @return numeric
+#' @importFrom lubridate ymd_hms year hour minute second
+#' @export get_start
+#' @examples
+#' get_start(as.Date("2021-06-30"), 'days', 365)
+#' 
 get_start <- function(ini, tipo_f, patron) {
   if(patron == 24) {
     return(hour(ini) + 1)

@@ -6,7 +6,8 @@
 #'
 #' @noRd 
 #'
-#' @importFrom shiny NS tagList 
+#' @importFrom shiny NS tagList
+#' @importFrom stats ts.union
 mod_carga_datos_ui <- function(id) {
   ns <- NS(id)
   btn_s <- "width: 100%;float: right;background-color: #3c8dbc;color: white;"
@@ -103,7 +104,8 @@ mod_carga_datos_ui <- function(id) {
 }
     
 #' carga_datos Server Function
-#' @keywords internal
+#'
+#' @noRd 
 mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo) {
   ns <- session$ns
   updateDate <- rv(ini = NULL, fin = NULL)
@@ -117,7 +119,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
     updateSelectInput("tipofecha", session = session, choices = fechas)
   })
   
-  #' Hide/Show Menu
+  # Hide/Show Menu
   observeEvent(input$btn_next, {
     hide(id = "cargadf", anim = T, animType = "slide")
     hide(id = "cargats", anim = T, animType = "slide")
@@ -141,7 +143,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
   
   ############################# Carga de datos ################################
   
-  #' Función del botón loadButton
+  # Función del botón loadButton
   observeEvent(input$loadButton, {
     rvmodelo$ms <- list(prom = NULL, inge = NULL, eing = NULL, drif = NULL,
                         deco = NULL, holt = NULL, arim = NULL)
@@ -171,7 +173,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
     })
   })
   
-  #' Actualizar tabla al cargar los datos
+  # Actualizar tabla al cargar los datos
   output$tabladatos <- DT::renderDataTable({
     datos  <- updateData$datos
     nombre <- str_remove(isolate(input$archivo$name), '\\..[^\\.]*$')
@@ -206,7 +208,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
     })
   }, server = F)
   
-  #' Actualiza opciones al cargar tabla de datos
+  # Actualiza opciones al cargar tabla de datos
   observeEvent(updateData$datos, {
     datos     <- updateData$datos
     numericos <- var.numericas(datos)
@@ -223,7 +225,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
   
   ############################# Carga Serie DF ################################
   
-  #' Generar input de fechas
+  # Generar input de fechas
   output$uifechas <- renderUI({
     if(input$tipofecha == "years") {
       f <- 'YYYY-01-01 00:00:00'
@@ -244,7 +246,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
     )
   })
   
-  #' Actualizar fecha final
+  # Actualizar fecha final
   observeEvent(input$startdate, {
     tryCatch({
       tipofecha <- isolate(input$tipofecha)
@@ -264,7 +266,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
     }, error = function(e) {})
   })
   
-  #' Actualizar fecha inicial
+  # Actualizar fecha inicial
   observeEvent(input$enddate, {
     tryCatch({
       tipofecha <- isolate(input$tipofecha)
@@ -284,7 +286,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
     }, error = function(e) {})
   })
   
-  #' Función del botón tsdfButton
+  # Función del botón tsdfButton
   observeEvent(input$tsdfButton, {
     rvmodelo$ms <- list(prom = NULL, inge = NULL, eing = NULL, drif = NULL,
                         deco = NULL, holt = NULL, arim = NULL)
@@ -322,7 +324,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
     })
   })
   
-  #' Actualizar la tabla al cargar la serie de datos df
+  # Actualizar la tabla al cargar la serie de datos df
   output$seriedatos <- DT::renderDataTable({
     datos  <- updateData$seriedf
     idioma <- isolate(updateData$idioma)
@@ -346,7 +348,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
     })
   }, server = F)
   
-  #' Actualiza las opciones al cargar tabla de datos
+  # Actualiza las opciones al cargar tabla de datos
   observeEvent(updateData$seriedf, {
     serie <- updateData$seriedf
     
@@ -421,7 +423,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
     })
   })
   
-  #' Grafico serie de tiempo
+  # Grafico serie de tiempo
   output$plot_ts <- renderEcharts4r({
     train <- updateData$train
     test  <- updateData$test

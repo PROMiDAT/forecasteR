@@ -19,7 +19,7 @@ mod_comparacion_ui <- function(id) {
                    type = "html", loader = "loader4")
       ),
       tabPanel(
-        title = labelInput("table_m"), value = "tabEplot",
+        title = labelInput("txterror"), value = "tabEplot",
         echarts4rOutput(ns("plot_error"), height = "70vh")
       ),
       tabPanel(
@@ -58,20 +58,7 @@ mod_comparacion_server <- function(input, output, session, updateData, rvmodelo)
       }
     }
     
-    datos <- apply(datos, 2, function(i) scales::rescale(i, to = c(0, 100)))
-    datos <- datos + 10
-    datos <- data.frame(t(datos))
-    datos$vars <- row.names(datos)
-    
-    res <- datos %>% e_charts(vars)
-    
-    for (i in 1:(ncol(datos) - 1)) {
-      res <- res %>% 
-        e_radar_(colnames(datos)[i], name = colnames(datos)[i], max = 110,
-                 areaStyle = list())
-    }
-    
-    res
+    grafico.errores(datos)
   })
   
   output$pred_error <- renderEcharts4r({

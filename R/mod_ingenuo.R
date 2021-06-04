@@ -7,6 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
+#' @importFrom forecast forecast naive
 mod_ingenuo_ui <- function(id) {
   ns <- NS(id)
   

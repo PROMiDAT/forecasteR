@@ -4,12 +4,14 @@
 \alias{plot_periods}
 \title{Periodogram Plot}
 \usage{
-plot_periods(x, p = NULL)
+plot_periods(x, p = NULL, txt = NULL)
 }
 \arguments{
 \item{x}{a ts object.}
 
 \item{p}{which important period to plot.}
+
+\item{txt}{vector of lenght 3 to indicate the text to use.}
 }
 \value{
 echarts4r plot

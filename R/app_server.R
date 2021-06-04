@@ -3,6 +3,7 @@
 #' @param input,output,session Internal parameters for {shiny}. 
 #'     DO NOT REMOVE.
 #' @import shiny
+#' 
 #' @noRd
 app_server <- function( input, output, session ) {
   ##################################  Options  ################################
@@ -31,13 +32,13 @@ app_server <- function( input, output, session ) {
                            deco = NULL, holt = NULL, arim = NULL))
   
   ###################################  Update  ################################
-  #' Update on Language
+  # Update on Language
   observeEvent(input$idioma, {
     updateData$idioma <- input$idioma
     updateLabelInput(session, cambiar.labels(), tr(cambiar.labels(), input$idioma))
   })
   
-  #' Enable/disable on load data
+  # Enable/disable on load data
   observe({
     element <- "#sidebarItemExpanded li"
     menu.values <- c("[class^=treeview]", " a[data-value=comp]")

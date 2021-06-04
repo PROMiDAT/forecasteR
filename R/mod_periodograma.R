@@ -40,7 +40,7 @@ mod_periodograma_ui <- function(id){
 mod_periodograma_server <- function(input, output, session, updateData) {
   ns <- session$ns
   
-  #' Gráfico de Periodograma
+  # Gráfico de Periodograma
   output$plot_periodo <- renderEcharts4r({
     serie <- updateData$seriets
     lg    <- updateData$idioma

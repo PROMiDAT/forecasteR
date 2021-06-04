@@ -87,7 +87,8 @@ cambiar.labels <- function() {
          'seltipo', 'selrango', 'hasta', 'sel', 'cre', 'selpatron', 'colts',
          'coltend', 'colcicl', 'colseas', 'colresi', 'colperi', 'colbest',
          'selbest', 'coltrain', 'coltest', 'colpred', 'tamred', 'selperi',
-         'corre', 'cali', 'calip', 'paso', 'lar', 'les', 'news')
+         'corre', 'cali', 'calip', 'paso', 'lar', 'les', 'news', 'txterror',
+         'n_pred')
   
   return(x)
 }

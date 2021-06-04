@@ -38,14 +38,14 @@ mod_descom_ui <- function(id){
     )
   )
 }
-    
+
 #' descom Server Function
 #'
 #' @noRd 
 mod_descom_server <- function(input, output, session, updateData){
   ns <- session$ns
   
-  #' Gráfico de Descomposición
+  # Gráfico de Descomposición
   output$plot_descom <- renderEcharts4r({
     serie <- updateData$seriets
     datos <- updateData$seriedf
@@ -62,10 +62,10 @@ mod_descom_server <- function(input, output, session, updateData){
       e_color(c(col_hist, col_tend, col_seas, col_resi))
   })
 }
-    
+
 ## To be copied in the UI
 # mod_descom_ui("descom_ui_1")
-    
+
 ## To be copied in the server
 # callModule(mod_descom_server, "descom_ui_1")
- 
+

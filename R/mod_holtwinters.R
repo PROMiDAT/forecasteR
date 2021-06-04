@@ -7,6 +7,8 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
+#' @importFrom forecast forecast
+#' @importFrom stats HoltWinters
 mod_holtwinters_ui <- function(id){
   ns <- NS(id)
   

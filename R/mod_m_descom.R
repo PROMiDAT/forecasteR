@@ -7,6 +7,8 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
+#' @importFrom stats stl
+#' @importFrom forecast forecast
 mod_m_descom_ui <- function(id){
   ns <- NS(id)
   

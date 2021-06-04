@@ -1,15 +1,63 @@
+#' RSS
+#'
+#' @param Pred a ts object (prediction).
+#' @param Real a ts object (real).
+#' @author Diego Jimenez <diego.jimenez@promidat.com>
+#' @return numeric
+#' @export RSS
+#' @examples
+#' model <- arima(window(AirPassengers, end = c(1959, 12)))
+#' pred  <- predict(model, 12)
+#' RSS(pred$pred, window(AirPassengers, start = 1960))
+#' 
 RSS <- function(Pred, Real) {
   return(sum((Real - Pred)^2))
 }
 
+#' Mean Square Error
+#'
+#' @param Pred a ts object (prediction).
+#' @param Real a ts object (real).
+#' @author Diego Jimenez <diego.jimenez@promidat.com>
+#' @return numeric
+#' @export MSE
+#' @examples
+#' model <- arima(window(AirPassengers, end = c(1959, 12)))
+#' pred  <- predict(model, 12)
+#' MSE(pred$pred, window(AirPassengers, start = 1960))
+#' 
 MSE <- function(Pred, Real) {
   return((1/length(Real)) * RSS(Pred, Real))
 }
 
+#' Root Mean Square Error
+#'
+#' @param Pred a ts object (prediction).
+#' @param Real a ts object (real).
+#' @author Diego Jimenez <diego.jimenez@promidat.com>
+#' @return numeric
+#' @export RMSE
+#' @examples
+#' model <- arima(window(AirPassengers, end = c(1959, 12)))
+#' pred  <- predict(model, 12)
+#' RMSE(pred$pred, window(AirPassengers, start = 1960))
+#' 
 RMSE <- function(Pred, Real) {
   return(sqrt(MSE(Pred, Real)))
 }
 
+#' Percentage of Failures Up
+#'
+#' @param Pred a ts object (prediction).
+#' @param Real a ts object (real).
+#' @author Diego Jimenez <diego.jimenez@promidat.com>
+#' @return numeric
+#' @export PFA
+#' @examples
+#' model <- arima(window(AirPassengers, end = c(1959, 12)))
+#' pred  <- predict(model, 12)
+#' PFA(pred$pred, window(AirPassengers, start = 1960))
+#' 
 PFA <- function(Pred, Real) {
   Total <- 0
   N <- length(Pred)
@@ -20,6 +68,18 @@ PFA <- function(Pred, Real) {
   return(Total/N)
 }
 
+#' Percentage of Total Failures Up
+#'
+#' @param Pred a ts object (prediction).
+#' @param Real a ts object (real).
+#' @author Diego Jimenez <diego.jimenez@promidat.com>
+#' @return numeric
+#' @export PTFA
+#' @examples
+#' model <- arima(window(AirPassengers, end = c(1959, 12)))
+#' pred  <- predict(model, 12)
+#' PTFA(pred$pred, window(AirPassengers, start = 1960))
+#' 
 PTFA <- function(Pred, Real) {
   Total <- 0
   SReal <- 0
@@ -34,12 +94,25 @@ PTFA <- function(Pred, Real) {
   return(Total/SReal)
 }
 
-tabla.errores <- function(predicciones, real, nombres = NULL) {
+#' Error table for all predictions
+#'
+#' @param Preds a list of ts objects (prediction).
+#' @param Real a ts object (real).
+#' @param nombres names for the data.frame (optional).
+#' @author Diego Jimenez <diego.jimenez@promidat.com>
+#' @return data.frame
+#' @export tabla.errores
+#' @examples
+#' model <- arima(window(AirPassengers, end = c(1959, 12)))
+#' pred  <- predict(model, 12)
+#' tabla.errores(list(pred$pred), window(AirPassengers, start = 1960))
+#' 
+tabla.errores <- function(Preds, Real, nombres = NULL) {
   r <- data.frame()
-  for (pred in predicciones) {
+  for (pred in Preds) {
     r <- rbind(r, data.frame(
-      'MSE' = MSE(pred, real), 'RMSE' = RMSE(pred, real),
-      'PFA' = PFA(pred, real), 'PTFA' = PTFA(pred, real)
+      'MSE' = MSE(pred, Real), 'RMSE' = RMSE(pred, Real),
+      'PFA' = PFA(pred, Real), 'PTFA' = PTFA(pred, Real)
     )
     )
   }
@@ -47,20 +120,33 @@ tabla.errores <- function(predicciones, real, nombres = NULL) {
   return(r)
 }
 
+#' Error plot for all predictions
+#'
+#' @param errores a data.frame with errors of a time series.
+#' @author Diego Jimenez <diego.jimenez@promidat.com>
+#' @return data.frame
+#' @export grafico.errores
+#' @import echarts4r
+#' @importFrom scales rescale
+#' @examples
+#' model <- arima(window(AirPassengers, end = c(1959, 12)))
+#' pred  <- predict(model, 12)
+#' e <- tabla.errores(list(pred$pred), window(AirPassengers, start = 1960))
+#' grafico.errores(e)
+#' 
 grafico.errores <- function (errores) {
-  centros <- as.data.frame(apply(errores, 2, function(i)
-    scales::rescale(i, to = c(0, 100))))
+  errores <- apply(errores, 2, function(i) scales::rescale(i, to = c(0, 100)))
+  errores <- errores + 10
+  errores <- data.frame(t(errores))
+  errores$vars <- row.names(errores)
   
-  res <- melt(t(centros), varnames = c("E", "Modelos"))
-  res <- res[order(res$E, decreasing = F), ]
-  res$M <- as.character(res$M)
-  y = c(0, 25, 50, 75, 100)
+  res <- errores %>% e_charts(vars)
   
-  ggplot(res, aes(x = E, y = value, group = Modelos, color = Modelos, fill = Modelos)) +
-    geom_polygon(alpha = 0.3, size = 1) + geom_point(size = 3) + 
-    theme_minimal() + theme(axis.text.y = element_blank()) + xlab("") + 
-    ylab("") + scale_y_continuous(limits = c(-10, 100), breaks = y) + 
-    annotate("text", x = 0.5, y = y, label = paste0(y, "%"), color = "gray60") +
-    ggproto("CordRadar", CoordPolar, theta = "x", r = "y", 
-            start = 0, direction = sign(1))
+  for (i in 1:(ncol(errores) - 1)) {
+    res <- res %>% 
+      e_radar_(colnames(errores)[i], name = colnames(errores)[i], max = 110,
+               areaStyle = list())
+  }
+  
+  res %>% e_tooltip() %>% e_show_loading()
 }

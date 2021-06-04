@@ -7,6 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
+#' @importFrom stats lm
 mod_t_c_ui <- function(id) {
   ns <- NS(id)
   
@@ -42,7 +43,7 @@ mod_t_c_ui <- function(id) {
 mod_t_c_server <- function(input, output, session, updateData) {
   ns <- session$ns
   
-  #' Gráfico de Tendencia y Ciclicidad
+  # Gráfico de Tendencia y Ciclicidad
   output$plot_tc <- renderEcharts4r({
     serie   <- updateData$seriets
     datos   <- updateData$seriedf

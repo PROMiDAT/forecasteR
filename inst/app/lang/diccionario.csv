@@ -1,4 +1,5 @@
 key;es;en
+espanol;Español;Español
 serie;Serie de Tiempo;Time Series
 data;Datos;Data
 date;Fechas;Date
@@ -81,6 +82,7 @@ coltrain;Seleccione el color del Entrenamiento:;Select Train color:
 coltest;Seleccione el color de la Prueba:;Select Test color:
 colpred;Seleccione el color de la Predicción:;Select Prediction color:
 plot_m;Gráfico de la Predicción;Prediction Plot
+txterror;Errores;Errors
 error_m;Índices Generales;General indexes
 mse;Error Cuadrático Medio;Mean Square Error
 rmse;Raiz de Error Cuadrático Medio;Root Mean Square Error
@@ -95,6 +97,7 @@ lar;Seleccione hasta dónde probar (p, d, q):;Select how far to test (p, d, q):
 les;Seleccione hasta dónde probar (P, D, Q):;Select how far to test (P, D, Q):
 corre;Correlograma;Correlogram
 news;Predicción Individuos Nuevos;Predict New Cases
+n_pred;Indique la cantidad de fechas a predecir:;Indicate the number of dates to predict:
 copyright;TODOS LOS DERECHOS RESERVADOS A;ALL RIGHTS RESERVED TO
 info;MÁS INFORMACIÓN;MORE INFORMATION
 version;VERSIÓN DEL SISTEMA;SYSTEM VERSION
