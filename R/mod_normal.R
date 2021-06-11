@@ -10,7 +10,7 @@
 mod_normal_ui <- function(id) {
   ns <- NS(id)
   
-  opc_hist <- tabsOptions(heights = c(70, 30), tabs.content = list(
+  opc_hist <- tabsOptions(list(icon("gear")), 100, 70, tabs.content = list(
     list(options.run(), tags$hr(style = "margin-top: 0px;"),
          conditionalPanel(
            "input.BoxNormal == 'tabNormalPlot'",
@@ -34,17 +34,7 @@ mod_normal_ui <- function(id) {
            "input.BoxNormal == 'tabNormalCalc'",
            sliderInput(ns("slide_inter"), labelInput("alfa"), 
                        min = 0, max = 0.2, step = 0.01, value = 0.05)
-         )),
-    list(
-      # conditionalPanel(
-      #   "input.BoxNormal == 'tabNormalPlot'",
-      #   codigo.monokai(ns("fieldCodeNormal"), height = "10vh")),
-      # conditionalPanel(
-      #   "input.BoxNormal == 'tabQPlot'",
-      #   codigo.monokai(ns("fieldCodeQplot"), height = "10vh")),
-      # conditionalPanel(
-      #   "input.BoxNormal == 'tabNormalCalc'",
-      #   codigo.monokai(ns("fieldCalcNormal"), height = "10vh"))
+         )
     )
   ))
   
@@ -77,15 +67,13 @@ mod_normal_server <- function(input, output, session, updateData) {
     datos     <- updateData$seriedf[[2]]
     colorBar  <- input$col_hist_bar
     colorLine <- input$col_hist_line
-    nombres   <- c(tr("histograma", updateData$idioma), 
-                   tr("curvanormal", updateData$idioma))
+    noms      <- tr(c("histograma", "curvanormal"), updateData$idioma)
     
     tryCatch({
-      # cod <- paste0("e_histnormal(datos[['", var, "']], '", colorBar,
-      #               "', '", colorLine, "', c('", nombres[1], "', '", 
-      #               nombres[2], "'))")
-      # updateAceEditor(session, "fieldCodeNormal", value = cod)
-      e_histnormal(diff(datos), colorBar, colorLine, nombres)
+      cod <- paste0("e_histnormal(diff(seriedf[[2]]), '", colorBar, "', '", 
+                    colorLine, "', c('", noms[1], "', '", noms[2], "'))")
+      isolate(updateData$code[['basico']][['docnormal']] <- cod)
+      e_histnormal(diff(datos), colorBar, colorLine, noms)
     }, error = function(e) {
       showNotification(paste0("ERROR 01010: ", e), duration = 10, type = "error")
       return(NULL)
@@ -99,9 +87,8 @@ mod_normal_server <- function(input, output, session, updateData) {
     colorLine  <- input$col_qq_line
     
     tryCatch({
-      # cod <- paste0("e_qq(datos[['", var, "']], '", colorPoint,
-      #               "', '", colorLine, "')")
-      # updateAceEditor(session, "fieldCodeQplot", value = cod)
+      cod <- paste0("e_qq(diff(seriedf[[2]]), '", colorPoint, "', '", colorLine, "')")
+      isolate(updateData$code[['basico']][['docqq']] <- cod)
       e_qq(diff(datos), colorPoint, colorLine)
     }, error = function(e) {
       showNotification(paste0("ERROR 01020: ", e), duration = 10, type = "error")
@@ -114,11 +101,11 @@ mod_normal_server <- function(input, output, session, updateData) {
     datos <- updateData$seriedf[[2]]
     alfa  <- as.numeric(input$slide_inter)
     lg    <- updateData$idioma
-    noms  <- c(tr('asimetria', lg), tr('normalidad', lg), tr('sigue', lg), 
-               tr('pvalue', lg), tr('tasim', lg), tr('serie', lg))
+    noms  <- tr(c('asimetria', 'normalidad','sigue', 
+                  'pvalue', 'tasim', 'serie'), lg)
     
     tryCatch({
-      #updateAceEditor(session, "fieldCalcNormal", value = "dfnormal(datos)")
+      isolate(updateData$code[['basico']][['docnormaldf']] <- "dfnormal(diff(seriedf[[2]]))")
       res <- dfnormal(data.frame(diff(datos)))
       rownames(res) <- noms[6]
       

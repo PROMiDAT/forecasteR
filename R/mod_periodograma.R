@@ -10,7 +10,7 @@
 mod_periodograma_ui <- function(id){
   ns <- NS(id)
   
-  opts_cor <- tabsOptions(heights = c(70, 50), tabs.content = list(
+  opts_cor <- tabsOptions(list(icon("gear")), 100, 70, tabs.content = list(
     list(
       options.run(), tags$hr(style = "margin-top: 0px;"),
       sliderInput(ns("sel_best"), labelInput("selbest"), 1, 20, 1),
@@ -20,8 +20,6 @@ mod_periodograma_ui <- function(id){
       colourpicker::colourInput(
         ns("col_best"), labelInput("colbest"), "#91cc75", 
         allowTransparent = T)
-    ),
-    list(#codigo.monokai(ns("fieldCodeCor"),  height = "30vh"))
     )
   ))
   
@@ -45,12 +43,23 @@ mod_periodograma_server <- function(input, output, session, updateData) {
     serie <- updateData$seriets
     lg    <- updateData$idioma
     
-    mejor    <- input$sel_best
-    col_ts2  <- input$col_ts2
-    col_best <- input$col_best
+    mejor  <- input$sel_best
+    colors <- c(input$col_ts2, input$col_best)
+    noms <- tr(c('txtbest', 'txtfreq', 'txtperi'), lg)
     
-    txt <- c(tr('txtbest', lg), tr('txtfreq', lg), tr('txtperi', lg))
-    plot_periods(serie, mejor, txt) %>% e_color(c(col_ts2, col_best))
+    tryCatch({
+      res <- e_periods(serie, mejor, noms) %>% e_color(colors)
+      cod <- paste0(
+        "e_periods(seriets, ", mejor, ", c('", paste(noms, collapse = "','"), "'))",
+        " %>%\n  e_color(c('", paste(colors, collapse = "','"), "'))")
+      isolate(updateData$code[['basico']][['docperi']] <- cod)
+      
+      res
+    }, error = function(e) {
+      showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
+      return(NULL)
+    })
+    
   })
 }
     

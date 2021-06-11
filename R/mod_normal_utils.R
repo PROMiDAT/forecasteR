@@ -79,7 +79,6 @@ e_qq <- function(data, colorpoint = "steelblue", colorline = "gray") {
 #' dfnormal(iris[, -5])
 #' 
 dfnormal <- function(data) {
-  data    <- var.numericas(data)
   fisher  <- sapply(data, function(i) fisher.calc(i))
   pearson <- sapply(data, function(i) pearson.test(i))
   lillie  <- sapply(data, function(i) lillie.test(i))

@@ -4,9 +4,10 @@
 #'     DO NOT REMOVE.
 #' @import shiny
 #' @import rlang
+#' @import shinyAce
 #' @import htmlwidgets
-#' @import shinydashboardPlus
 #' @import shinycustomloader
+#' @import shinydashboardPlus
 #' @importFrom colourpicker colourInput
 #' @importFrom DT tableHeader formatStyle
 #' @importFrom utils read.table write.csv
@@ -36,20 +37,20 @@ app_ui <- function(request) {
         sidebarMenu(
           id = "principal",
           tags$div(style = "padding-top:10px;"),
-          menuItem(labelInput("data"), tabName = "cargar",
+          menuItem(labelInput("data"), tabName = "cargar", 
                    icon = icon("dashboard")),
           menuItem(
             labelInput("basico"), tabName = "parte1",
             icon = icon("th-list"),
             menuSubItem(labelInput("norm"), "norm", icon = icon("area-chart")),
-            menuSubItem(labelInput("t_c"),  "t_c", icon = icon("line-chart")),
+            menuSubItem(labelInput("t_c"),  "t_c",  icon = icon("line-chart")),
             menuSubItem(labelInput("desc"), "desc", icon = icon("puzzle-piece")),
             menuSubItem(labelInput("peri"), "peri", icon = icon("sliders"))
           ),
           menuItem(
             labelInput("apre"), tabName = "parte2",
             icon = icon("th-list"),
-            menuSubItem(labelInput("mean"), "mean", icon = icon("adjust")),
+            menuSubItem(labelInput("prom"), "prom", icon = icon("adjust")),
             menuSubItem(labelInput("naiv"), "naiv", icon = icon("long-arrow-right")),
             menuSubItem(labelInput("snai"), "snai", icon = icon("area-chart")),
             menuSubItem(labelInput("drif"), "drif", icon = icon("line-chart")),
@@ -68,7 +69,8 @@ app_ui <- function(request) {
                    sliderInput(inputId = "aux", min = 2, value = 2,
                                label = "Cantidad de Clusters", max = 10),
                    colourpicker::colourInput(
-                     "auxColor", NULL, value = "red", allowTransparent = T)
+                     "auxColor", NULL, value = "red", allowTransparent = T),
+                   codigo.monokai("auxcode", height = "10vh")
           )
         )
       ),
@@ -92,7 +94,7 @@ app_ui <- function(request) {
           tabItem(tabName = "peri",  mod_periodograma_ui("periodograma_ui_1")),
           
           # Promedio
-          tabItem(tabName = "mean",  mod_promedio_ui("promedio_ui_1")),
+          tabItem(tabName = "prom",  mod_promedio_ui("promedio_ui_1")),
           
           # Ingenuo
           tabItem(tabName = "naiv",  mod_ingenuo_ui("ingenuo_ui_1")),
@@ -123,6 +125,15 @@ app_ui <- function(request) {
           
           # Acerca De
           tabItem(tabName = "acercaDe", mod_acercade_ui("acercade_ui_1"))
+        )
+      ),
+      
+      dashboardControlbar(
+        width = 500,
+        div(
+          style = "margin-right: 15px; margin-left: 15px;", 
+          h3(labelInput('code')), hr(), 
+          codigo.monokai("codeTotal", height = "70vh")
         )
       )
     )

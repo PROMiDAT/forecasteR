@@ -35,6 +35,7 @@ mod_nuevos_ui <- function(id){
           ), hr(),
           actionButton(ns("n_loadButton"), labelInput("cargar"), width = "100%"),
           footer = div(
+            style = "height: 50vh;",
             withLoader(DT::dataTableOutput(ns('n_tabladatos')), 
                        type = "html", loader = "loader4"))
         )),
@@ -74,6 +75,7 @@ mod_nuevos_ui <- function(id){
                                       width = "100%"))
           ),
           footer = div(
+            style = "height: 46vh;",
             withLoader(DT::dataTableOutput(ns('n_seriedatos')), 
                        type = "html", loader = "loader4"))
         )),
@@ -104,7 +106,7 @@ mod_nuevos_ui <- function(id){
           fluidRow(
             col_4(selectInput(ns("sel_model"), labelInput('selpatron'), "")),
             col_8(
-              numericInput(ns('n_pred'), labelInput('n_pred'), 10, 1, step = 2.5),
+              numericInput(ns('n_pred'), labelInput('n_pred'), 10, 1, step = 5),
               conditionalPanel(
                 condition = "input.sel_model == 'reds'", ns = ns,
                 numericInput(ns("n_tam"), labelInput("tamred"), 10, min = 0, step = 5),
@@ -169,15 +171,13 @@ mod_nuevos_server <- function(input, output, session, updateData) {
   observeEvent(updateData$idioma, {
     lg <- updateData$idioma
     fechas <- list("years", "months", "days", "hours", "min", "sec")
-    names(fechas) <- c(tr("anual", lg), tr("mes", lg), tr("dia", lg), 
-                       tr("hora", lg), tr("minuto", lg), tr("segundo", lg))
+    names(fechas) <- tr(c("anual", "mes", "dia", "hora", "minuto", "segundo"), lg)
     updateSelectInput("n_tipofecha", session = session, choices = fechas)
     
-    models <- list("mean", "naiv", "snai", "drif", 
+    models <- list("prom", "naiv", "snai", "drif", 
                    "desc", "reds", "holt", "arim")
-    names(models) <- c(tr("mean", lg), tr("naiv", lg), tr("snai", lg), 
-                       tr("drif", lg), tr("desc", lg), tr("reds", lg), 
-                       "Holt-Winters", "ARIMA")
+    names(models) <- tr(c("prom", "naiv", "snai", "drif", 
+                          "desc", "reds", "holt", "arim"), lg)
     updateSelectInput("sel_model", session = session, choices = models)
   })
   
@@ -539,7 +539,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     n_pred    <- isolate(input$n_pred)
     sel_model <- isolate(input$sel_model)
     
-    if(sel_model == 'mean') {
+    if(sel_model == 'prom') {
       modelo <- meanf(serie, h = n_pred)
     } else if(sel_model == 'naiv') {
       modelo <- naive(serie, h = n_pred)

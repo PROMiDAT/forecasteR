@@ -26,16 +26,30 @@ app_server <- function( input, output, session ) {
   
   ##################################  Variables  ##############################
   updateData <- rv(datos = NULL, seriedf = NULL, seriets = NULL, train = NULL,
-                   test = NULL, ts_type = NULL, idioma = NULL)
+                   test = NULL, ts_type = NULL, idioma = NULL, code = NULL)
   
-  rvmodelo <- rv(ms = list(prom = NULL, inge = NULL, eing = NULL, drif = NULL,
-                           deco = NULL, holt = NULL, arim = NULL))
+  rvmodelo <- rv(prom = NULL, inge = NULL, eing = NULL, drif = NULL,
+                 deco = NULL, holt = NULL, arim = NULL)
   
   ###################################  Update  ################################
   # Update on Language
   observeEvent(input$idioma, {
     updateData$idioma <- input$idioma
     updateLabelInput(session, cambiar.labels(), tr(cambiar.labels(), input$idioma))
+  })
+  
+  # Update Code
+  observeEvent(c(updateData$code, input$idioma), {
+    cod <- paste0(
+      "library(forecast)\n", "library(lubridate)\n",
+      "library(echarts4r)\n", "library(forecasteR)\n\n"
+    )
+    for (modulo in updateData$code) {
+      for (n in names(modulo)) {
+        cod <- paste0(cod, "### ", n, "\n", modulo[[n]], "\n\n")
+      }
+    }
+    updateAceEditor(session, "codeTotal", value = cod)
   })
   
   # Enable/disable on load data
@@ -53,7 +67,8 @@ app_server <- function( input, output, session ) {
   })
   
   ###################################  Modules  ###############################
-  callModule(mod_carga_datos_server,  "carga_datos_ui_1",  updateData, rvmodelo)
+  callModule(mod_carga_datos_server,  "carga_datos_ui_1", updateData, rvmodelo)
+  
   callModule(mod_normal_server,       "normal_ui_1",       updateData)
   callModule(mod_t_c_server,          "t_c_ui_1",          updateData)
   callModule(mod_descom_server,       "descom_ui_1",       updateData)

@@ -11,25 +11,40 @@
 mod_promedio_ui <- function(id) {
   ns <- NS(id)
   
-  opc_prom <- tabsOptions(heights = c(70, 50), tabs.content = list(
-    list(
-      options.run(ns("run_prom")), tags$hr(style = "margin-top: 0px;"),
-      conditionalPanel(
-        condition = "input.BoxProm == 'tabPlot'", ns = ns,
-        colourpicker::colourInput(
-          ns("col_train_prom"), labelInput("coltrain"), "#5470c6", 
-          allowTransparent = T),
-        colourpicker::colourInput(
-          ns("col_test_prom"), labelInput("coltest"), "#91cc75", 
-          allowTransparent = T),
-        colourpicker::colourInput(
-          ns("col_p_prom"), labelInput("colpred"), "#fac858", 
-          allowTransparent = T)
-      )
-    ),
-    list(#codigo.monokai(ns("fieldCodeCor"),  height = "30vh"))
+  opc_prom <- div(
+    conditionalPanel(
+      condition = "input.BoxProm == 'tabText' | input.BoxProm == 'tabPlot'", ns = ns,
+      tabsOptions(list(icon("gear")), 100, 70, tabs.content = list(
+        list(
+          conditionalPanel(
+            condition = "input.BoxProm == 'tabText'", ns = ns,
+            options.run(ns("run_prom")), tags$hr(style = "margin-top: 0px;")
+          ),
+          conditionalPanel(
+            condition = "input.BoxProm == 'tabPlot'", ns = ns,
+            options.run(NULL), tags$hr(style = "margin-top: 0px;"),
+            fluidRow(
+              col_4(
+                colourpicker::colourInput(
+                  ns("col_train_prom"), labelInput("coltrain"), "#5470c6", 
+                  allowTransparent = T)
+              ), 
+              col_4(
+                colourpicker::colourInput(
+                  ns("col_test_prom"), labelInput("coltest"), "#91cc75", 
+                  allowTransparent = T)
+              ), 
+              col_4(
+                colourpicker::colourInput(
+                  ns("col_p_prom"), labelInput("colpred"), "#fac858", 
+                  allowTransparent = T)
+              )
+            )
+          )
+        )
+      ))
     )
-  ))
+  )
   
   tagList(
     tabBoxPrmdt(
@@ -80,13 +95,24 @@ mod_promedio_server <- function(input, output, session, updateData, rvmodelo) {
     train <- updateData$train
     test  <- updateData$test
     
-    modelo <- meanf(train, h = length(test))
-    pred   <- modelo$mean
-    isolate(rvmodelo$ms$prom$model <- modelo)
-    isolate(rvmodelo$ms$prom$pred  <- pred)
-    isolate(rvmodelo$ms$prom$error <- tabla.errores(list(pred), test, c("prom")))
-    
-    modelo
+    tryCatch({
+      modelo <- meanf(train, h = length(test))
+      pred   <- modelo$mean
+      isolate(rvmodelo$prom$model <- modelo)
+      isolate(rvmodelo$prom$pred  <- pred)
+      isolate(rvmodelo$prom$error <- tabla.errores(list(pred), test, "prom"))
+      
+      cod <- paste0(
+        "modelo.prom <- meanf(train, h = length(test))\n", 
+        "pred.prom   <- modelo.prom$mean\n",
+        "error.prom  <- tabla.errores(list(pred.prom), test, 'Prom')")
+      isolate(updateData$code[['prom']] <- list(docpromm = cod))
+      
+      modelo
+    }, error = function(e) {
+      showNotification(paste0("ERROR 0000: ", e), type = "error")
+      return(NULL)
+    })
   })
   
   output$table_prom <- DT::renderDataTable({
@@ -95,34 +121,55 @@ mod_promedio_server <- function(input, output, session, updateData, rvmodelo) {
     seriedf <- tail(isolate(updateData$seriedf), length(test))
     seriedf[[1]] <- format(seriedf[[1]], '%Y-%m-%d %H:%M:%S')
     
-    res <- data.frame(seriedf[[1]], seriedf[[2]], rvmodelo$ms$prom$pred, 
-                      abs(seriedf[[2]] - rvmodelo$ms$prom$pred))
-    colnames(res) <- c(tr('date', lg), "Real", tr('table_m', lg), 
-                       tr('diff', lg))
-    
-    DT::datatable(
-      res, selection = 'none', editable = F, rownames = F, 
-      options = list(dom = 'frtp', scrollY = "50vh")
-    )
+    tryCatch({
+      res <- data.frame(seriedf[[1]], seriedf[[2]], rvmodelo$prom$pred, 
+                        abs(seriedf[[2]] - rvmodelo$prom$pred))
+      colnames(res) <- tr(c('date', 'Real', 'table_m', 'diff'), lg)
+      res[, 2:4] <- round(res[, 2:4], 3)
+      
+      cod <- paste0(
+        "s <- tail(seriedf, length(test))\n",
+        "res <- data.frame(s[[1]], s[[2]], pred.prom, abs(s[[2]] - pred.prom))\n",
+        "colnames(res) <- c('", paste(colnames(res), collapse = "','"), "')\n",
+        "res[, 2:4] <- round(res[, 2:4], 3)\nres")
+      isolate(updateData$code[['prom']][['docpromt']] <- cod)
+      
+      DT::datatable(res, selection = 'none', editable = F, rownames = F,
+                    options = list(dom = 'frtp', scrollY = "50vh"))
+    }, error = function(e) {
+      showNotification(paste0("ERROR 0000: ", e), type = "error")
+      return(NULL)
+    })
   })
   
   output$plot_prom <- renderEcharts4r({
-    train <- isolate(updateData$train)
-    test  <- isolate(updateData$test)
-    lg    <- updateData$idioma
-    pred  <- rvmodelo$ms$prom$pred
-    serie <- data.frame(ts.union(train, test, pred))
-    serie$fecha <- isolate(updateData$seriedf[[1]])
-    colnames(serie) <- c("train", "test", "pred", "fecha")
-    colores <- c(input$col_train_prom, input$col_test_prom, input$col_p_prom)
+    train  <- isolate(updateData$train)
+    test   <- isolate(updateData$test)
+    lg     <- updateData$idioma
+    pred   <- rvmodelo$prom$pred
+    colors <- c(input$col_train_prom, input$col_test_prom, input$col_p_prom)
     
     tryCatch({
-      serie %>% e_charts(x = fecha) %>% 
-        e_line(serie = train, name = tr('train', lg)) %>%
-        e_line(serie = test,  name = tr('test', lg)) %>% 
-        e_line(serie = pred,  name = tr('table_m', lg)) %>% 
-        e_datazoom() %>% e_tooltip(trigger = 'axis') %>% e_show_loading() %>%
-        e_color(colores)
+      serie <- data.frame(ts.union(train, test, pred))
+      serie$date <- isolate(updateData$seriedf[[1]])
+      colnames(serie) <- c("train", "test", "pred", "date")
+      
+      noms <- c(tr(c('train', 'test', 'table_m'), lg), 'pred.prom')
+      isolate(updateData$code[['prom']][['docpromp']] <- code.plots(noms, colors))
+      
+      opts <- list(
+        xAxis = list(
+          type = "category", data = format(serie$date, "%Y-%m-%d %H:%M:%S")),
+        yAxis = list(show = TRUE),
+        series = list(
+          list(type = "line", data = serie$train, name = noms[1]),
+          list(type = "line", data = serie$test,  name = noms[2]),
+          list(type = "line", data = serie$pred,  name = noms[3])
+        )
+      )
+      
+      e_charts() %>% e_list(opts) %>% e_legend() %>% e_datazoom() %>% 
+        e_tooltip(trigger = 'axis') %>% e_show_loading() %>% e_color(colors)
     }, error = function(e) {
       showNotification(paste0("ERROR 0000: ", e), type = "error")
       return(NULL)
@@ -132,17 +179,25 @@ mod_promedio_server <- function(input, output, session, updateData, rvmodelo) {
   output$error_prom <- renderUI({
     lg <- updateData$idioma
     
-    div(
-      style = "display: table; width: 100%; height: 70vh; overflow: scroll;",
-      infoBox(tr("mse", lg), rvmodelo$ms$prom$error$MSE, NULL, 
-              icon("warning"), "red", 6, fill = T),
-      infoBox(tr("rmse", lg), rvmodelo$ms$prom$error$RMSE, NULL, 
-              icon("warning"), "yellow", 6, fill = T),
-      infoBox(tr("pfa", lg), rvmodelo$ms$prom$error$PFA, NULL, 
-              icon("level-up"), "green", 6, fill = T),
-      infoBox(tr("ptfa", lg), rvmodelo$ms$prom$error$PTFA, NULL, 
-              icon("level-up"), "navy", 6, fill = T)
-    )
+    tryCatch({
+      res <- div(
+        style = "display: table; width: 100%; height: 70vh; overflow: scroll;",
+        infoBox(tr("mse", lg), rvmodelo$prom$error$MSE, NULL, 
+                icon("warning"), "red", 6, fill = T),
+        infoBox(tr("rmse", lg), rvmodelo$prom$error$RMSE, NULL, 
+                icon("warning"), "yellow", 6, fill = T),
+        infoBox(tr("pfa", lg), rvmodelo$prom$error$PFA, NULL, 
+                icon("level-up"), "green", 6, fill = T),
+        infoBox(tr("ptfa", lg), rvmodelo$prom$error$PTFA, NULL, 
+                icon("level-up"), "navy", 6, fill = T)
+      )
+      isolate(updateData$code[['prom']][['docprome']] <- "error.prom")
+      
+      res
+    }, error = function(e) {
+      showNotification(paste0("ERROR 0000: ", e), type = "error")
+      return(NULL)
+    })
   })
 }
     

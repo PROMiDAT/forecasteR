@@ -407,6 +407,7 @@ tabsOptions <- function(
   res <- ""
   codeButtons <- ""
   cant <- length(botones)
+  if(cant == 1) {widgets <- c("center")}
   if(cant == 2) {widgets <- c("left", "right")}
   if(cant == 3) {widgets <- c("left", "center", "right")}
   if(cant == 4) {widgets <- c("left", "centerleft", "centeright", "right")}

@@ -20,6 +20,13 @@ infoBoxPROMiDAT <- function(titulo, valor, icono) {
   )
 }
 
+codigo.monokai <- function(id, height) {
+  aceEditor(
+    id, mode = "r", theme = "monokai", value = "", 
+    readOnly = T, height = height
+  )
+}
+
 labelInput <- function(inputId, value = ""){
   tags$span(`data-id` = inputId, value)
 }

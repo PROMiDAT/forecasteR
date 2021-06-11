@@ -10,12 +10,11 @@
 mod_descom_ui <- function(id){
   ns <- NS(id)
   
-  opts_descom <- tabsOptions(heights = c(70, 50), tabs.content = list(
+  opts_descom <- tabsOptions(list(icon("gear")), 100, 70, tabs.content = list(
     list(
       options.run(), tags$hr(style = "margin-top: 0px;"),
       colourpicker::colourInput(
-        ns("col_hist"), labelInput("colts"), "#5470c6", 
-        allowTransparent = T),
+        ns("col_hist"), labelInput("colts"), "#5470c6", allowTransparent = T),
       colourpicker::colourInput(
         ns("col_tend"), labelInput("coltend"), "#91cc75", 
         allowTransparent = T),
@@ -23,10 +22,7 @@ mod_descom_ui <- function(id){
         ns("col_seas"), labelInput("colseas"), "#fac858", 
         allowTransparent = T),
       colourpicker::colourInput(
-        ns("col_resi"), labelInput("colresi"), "#ef6566", 
-        allowTransparent = T)
-    ),
-    list(#codigo.monokai(ns("fieldCodeCor"),  height = "30vh"))
+        ns("col_resi"), labelInput("colresi"), "#ef6566", allowTransparent = T)
     )
   ))
   
@@ -49,17 +45,23 @@ mod_descom_server <- function(input, output, session, updateData){
   output$plot_descom <- renderEcharts4r({
     serie <- updateData$seriets
     datos <- updateData$seriedf
-    
-    col_hist <- input$col_hist
-    col_tend <- input$col_tend
-    col_seas <- input$col_seas
-    col_resi <- input$col_resi
+    colors <- c(input$col_hist, input$col_tend, input$col_seas, input$col_resi)
     
     lg    <- updateData$idioma
-    noms  <- c(tr('serie', lg), tr('tend', lg), tr('seas', lg), tr('resi', lg))
+    noms  <- tr(c('serie', 'tend', 'seas', 'resi'), lg)
     
-    e_decompose(serie, datos[[1]], noms) %>% 
-      e_color(c(col_hist, col_tend, col_seas, col_resi))
+    tryCatch({
+      res <- e_decompose(serie, datos[[1]], noms) %>% e_color(colors)
+      cod <- paste0(
+        "e_decompose(seriets, seriedf[[1]], c('", paste(noms, collapse = "','"), "'))",
+        " %>%\n  e_color(c('", paste(colors, collapse = "','"), "'))")
+      isolate(updateData$code[['basico']][['docdesc']] <- cod)
+      
+      res
+    }, error = function(e) {
+      showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
+      return(NULL)
+    })
   })
 }
 

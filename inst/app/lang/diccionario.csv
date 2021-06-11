@@ -1,6 +1,7 @@
 key;es;en
 espanol;Español;Español
 serie;Serie de Tiempo;Time Series
+code;Código;Code
 data;Datos;Data
 date;Fechas;Date
 cargar;Cargar;Load
@@ -9,7 +10,6 @@ separador;Separador;Separator
 separadordec;Separador Decimal;Decimal Separator
 cargarchivo;Cargar Archivo;Load Archive
 subir;Subir;Upload
-cargar;Cargar;Load
 selvalor;Seleccione la columna con los datos:;Select data column:
 selfecha;Seleccione la columna con las fechas:;Select date column:
 seltipo;Los datos vienen de forma:;The data comes:
@@ -71,11 +71,13 @@ sig;Siguiente;Next
 ant;Anterior;Previous
 apre;Aprendizaje Supervisado;Supervised Learning
 comp;Comparación de Modelos;Model Comparison
-mean;Promedio;Mean
+prom;Promedio;Mean
 naiv;Ingenuo;Naive
 snai;Estacional Ingenuo;Seasonal Naive
 drif;Desvío;Drift
 reds;Redes Neuronales;Neural Networks
+holt;Holt-Winters;Holt-Winters
+arim;Arima;Arima
 text_m;Modelo;Model
 table_m;Predicción;Prediction
 coltrain;Seleccione el color del Entrenamiento:;Select Train color:

@@ -82,13 +82,13 @@ cambiar.labels <- function() {
          'cargarchivo', 'subir', 'sig', 'ant', 'selvalor', 'selfecha', 'train', 
          'test', 'opciones', 'ejecutar', 'basico', 'norm', 'plotnormal', 
          'selcolbar', 'selcolline', 'selcolpoint', 't_c', 'desc', 'peri', 
-         'apre', 'comp', 'mean', 'naiv', 'snai', 'drif', 'reds', 'text_m', 
+         'apre', 'comp', 'prom', 'naiv', 'snai', 'drif', 'reds', 'text_m', 
          'table_m', 'plot_m', 'error_m', 'mse', 'rmse', 'pfa', 'ptfa',
          'seltipo', 'selrango', 'hasta', 'sel', 'cre', 'selpatron', 'colts',
          'coltend', 'colcicl', 'colseas', 'colresi', 'colperi', 'colbest',
          'selbest', 'coltrain', 'coltest', 'colpred', 'tamred', 'selperi',
          'corre', 'cali', 'calip', 'paso', 'lar', 'les', 'news', 'txterror',
-         'n_pred')
+         'n_pred', 'code')
   
   return(x)
 }

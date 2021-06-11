@@ -11,25 +11,40 @@
 mod_desvio_ui <- function(id){
   ns <- NS(id)
   
-  opc_drift <- tabsOptions(heights = c(70, 50), tabs.content = list(
-    list(
-      options.run(ns("run_drift")), tags$hr(style = "margin-top: 0px;"),
-      conditionalPanel(
-        condition = "input.BoxDrift == 'tabPlot'", ns = ns,
-        colourpicker::colourInput(
-          ns("col_train_drift"), labelInput("coltrain"), "#5470c6", 
-          allowTransparent = T),
-        colourpicker::colourInput(
-          ns("col_test_drift"), labelInput("coltest"), "#91cc75", 
-          allowTransparent = T),
-        colourpicker::colourInput(
-          ns("col_p_drift"), labelInput("colpred"), "#fac858", 
-          allowTransparent = T)
-      )
-    ),
-    list(#codigo.monokai(ns("fieldCodeCor"),  height = "30vh"))
+  opc_drift <- div(
+    conditionalPanel(
+      condition = "input.BoxDrift == 'tabText' | input.BoxDrift == 'tabPlot'", ns = ns,
+      tabsOptions(list(icon("gear")), 100, 70, tabs.content = list(
+        list(
+          conditionalPanel(
+            condition = "input.BoxDrift == 'tabText'", ns = ns,
+            options.run(ns("run_drift")), tags$hr(style = "margin-top: 0px;"),
+          ),
+          conditionalPanel(
+            condition = "input.BoxDrift == 'tabPlot'", ns = ns,
+            options.run(NULL), tags$hr(style = "margin-top: 0px;"),
+            fluidRow(
+              col_4(
+                colourpicker::colourInput(
+                  ns("col_train_drift"), labelInput("coltrain"), "#5470c6", 
+                  allowTransparent = T)
+              ),
+              col_4(
+                colourpicker::colourInput(
+                  ns("col_test_drift"), labelInput("coltest"), "#91cc75", 
+                  allowTransparent = T)
+              ),
+              col_4(
+                colourpicker::colourInput(
+                  ns("col_p_drift"), labelInput("colpred"), "#fac858", 
+                  allowTransparent = T)
+              )
+            )
+          )
+        )
+      ))
     )
-  ))
+  )
   
   tagList(
     tabBoxPrmdt(
@@ -80,13 +95,24 @@ mod_desvio_server <- function(input, output, session, updateData, rvmodelo) {
     train <- updateData$train
     test  <- updateData$test
     
-    modelo <- rwf(train, h = length(test), drift = T)
-    pred   <- modelo$mean
-    rvmodelo$ms$drift$model <- modelo
-    rvmodelo$ms$drift$pred  <- pred
-    rvmodelo$ms$drift$error <- tabla.errores(list(pred), test, c("drift"))
-    
-    rvmodelo$ms$drift$model
+    tryCatch({
+      modelo <- rwf(train, h = length(test), drift = T)
+      pred   <- modelo$mean
+      rvmodelo$drif$model <- modelo
+      rvmodelo$drif$pred  <- pred
+      rvmodelo$drif$error <- tabla.errores(list(pred), test, c("drif"))
+      
+      cod <- paste0(
+        "modelo.drif <- rwf(train, h = length(test), drift = T)\n", 
+        "pred.drif   <- modelo.drif$mean\n",
+        "error.drif  <- tabla.errores(list(pred.drif), test, 'Drift')")
+      isolate(updateData$code[['drif']] <- list(docdrifm = cod))
+      
+      modelo
+    }, error = function(e) {
+      showNotification(paste0("ERROR 0000: ", e), type = "error")
+      return(NULL)
+    })
   })
   
   output$table_drift <- DT::renderDataTable({
@@ -95,34 +121,54 @@ mod_desvio_server <- function(input, output, session, updateData, rvmodelo) {
     seriedf <- tail(isolate(updateData$seriedf), length(test))
     seriedf[[1]] <- format(seriedf[[1]], '%Y-%m-%d %H:%M:%S')
     
-    res <- data.frame(seriedf[[1]], seriedf[[2]], rvmodelo$ms$drift$pred, 
-                      abs(seriedf[[2]] - rvmodelo$ms$drift$pred))
-    colnames(res) <- c(tr('date', lg), "Real", tr('table_m', lg), 
-                       tr('diff', lg))
+    tryCatch({
+    res <- data.frame(seriedf[[1]], seriedf[[2]], rvmodelo$drif$pred, 
+                      abs(seriedf[[2]] - rvmodelo$drif$pred))
+    colnames(res) <- tr(c('date', 'Real', 'table_m', 'diff'), lg)
+    res[, 2:4] <- round(res[, 2:4], 3)
     
-    DT::datatable(
-      res, selection = 'none', editable = F, rownames = F, 
-      options = list(dom = 'frtp', scrollY = "50vh")
-    )
+    cod <- paste0(
+      "s <- tail(seriedf, length(test))\n",
+      "res <- data.frame(s[[1]], s[[2]], pred.drif, abs(s[[2]] - pred.drif))\n",
+      "colnames(res) <- c('", paste(colnames(res), collapse = "','"), "')\n",
+      "res[, 2:4] <- round(res[, 2:4], 3)\nres")
+    isolate(updateData$code[['drif']][['docdrift']] <- cod)
+    
+    DT::datatable(res, selection = 'none', editable = F, rownames = F,
+                  options = list(dom = 'frtp', scrollY = "50vh"))
+    }, error = function(e) {
+      showNotification(paste0("ERROR 0000: ", e), type = "error")
+      return(NULL)
+    })
   })
   
   output$plot_drift <- renderEcharts4r({
     train <- isolate(updateData$train)
     test  <- isolate(updateData$test)
     lg    <- updateData$idioma
-    pred  <- rvmodelo$ms$drift$pred
+    pred  <- rvmodelo$drif$pred
     serie <- data.frame(ts.union(train, test, pred))
-    serie$fecha <- isolate(updateData$seriedf)[[1]]
-    colnames(serie) <- c("train", "test", "pred", "fecha")
-    colores <- c(input$col_train_drift, input$col_test_drift, input$col_p_drift)
+    serie$date <- isolate(updateData$seriedf)[[1]]
+    colnames(serie) <- c("train", "test", "pred", "date")
+    colors <- c(input$col_train_drift, input$col_test_drift, input$col_p_drift)
     
     tryCatch({
-      serie %>% e_charts(x = fecha) %>% 
-        e_line(serie = train, name = tr('train', lg)) %>%
-        e_line(serie = test,  name = tr('test', lg)) %>% 
-        e_line(serie = pred,  name = tr('table_m', lg)) %>% 
-        e_datazoom() %>% e_tooltip(trigger = 'axis') %>% e_show_loading() %>%
-        e_color(colores)
+      noms <- c(tr(c('train', 'test', 'table_m'), lg), 'pred.drif')
+      isolate(updateData$code[['drif']][['docdrifp']] <- code.plots(noms, colors))
+      
+      opts <- list(
+        xAxis = list(
+          type = "category", data = format(serie$date, "%Y-%m-%d %H:%M:%S")),
+        yAxis = list(show = TRUE),
+        series = list(
+          list(type = "line", data = serie$train, name = noms[1]),
+          list(type = "line", data = serie$test,  name = noms[2]),
+          list(type = "line", data = serie$pred,  name = noms[3])
+        )
+      )
+      
+      e_charts() %>% e_list(opts) %>% e_legend() %>% e_datazoom() %>% 
+        e_tooltip(trigger = 'axis') %>% e_show_loading() %>% e_color(colors)
     }, error = function(e) {
       showNotification(paste0("ERROR 0000: ", e), type = "error")
       return(NULL)
@@ -132,17 +178,25 @@ mod_desvio_server <- function(input, output, session, updateData, rvmodelo) {
   output$error_drift <- renderUI({
     lg <- updateData$idioma
     
-    div(
-      style = "display: table; width: 100%; height: 70vh; overflow: scroll;",
-      infoBox(tr("mse", lg), rvmodelo$ms$drift$error$MSE, NULL, 
-              icon("warning"), "red", 6, fill = T),
-      infoBox(tr("rmse", lg), rvmodelo$ms$drift$error$RMSE, NULL, 
-              icon("warning"), "yellow", 6, fill = T),
-      infoBox(tr("pfa", lg), rvmodelo$ms$drift$error$PFA, NULL, 
-              icon("level-up"), "green", 6, fill = T),
-      infoBox(tr("ptfa", lg), rvmodelo$ms$drift$error$PTFA, NULL, 
-              icon("level-up"), "navy", 6, fill = T)
-    )
+    tryCatch({
+      res <- div(
+        style = "display: table; width: 100%; height: 70vh; overflow: scroll;",
+        infoBox(tr("mse", lg), rvmodelo$drif$error$MSE, NULL, 
+                icon("warning"), "red", 6, fill = T),
+        infoBox(tr("rmse", lg), rvmodelo$drif$error$RMSE, NULL, 
+                icon("warning"), "yellow", 6, fill = T),
+        infoBox(tr("pfa", lg), rvmodelo$drif$error$PFA, NULL, 
+                icon("level-up"), "green", 6, fill = T),
+        infoBox(tr("ptfa", lg), rvmodelo$drif$error$PTFA, NULL, 
+                icon("level-up"), "navy", 6, fill = T)
+      )
+      isolate(updateData$code[['drif']][['docdrife']] <- "error.drif")
+      
+      res
+    }, error = function(e) {
+      showNotification(paste0("ERROR 0000: ", e), type = "error")
+      return(NULL)
+    })
   })
 }
     

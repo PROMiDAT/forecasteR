@@ -20,20 +20,20 @@ df_periods <- function(x) {
 #'
 #' @param x a ts object.
 #' @param p which important period to plot.
-#' @param txt vector of lenght 3 to indicate the text to use.
+#' @param noms vector of lenght 3 to indicate the text to use.
 #' @author Diego Jimenez <diego.jimenez@promidat.com>
 #' @return echarts4r plot
-#' @export plot_periods
+#' @export e_periods
 #' @import echarts4r
 #' @examples
-#' plot_periods(AirPassengers)
+#' e_periods(AirPassengers)
 #' 
-plot_periods <- function(x, p = NULL, txt = NULL) {
+e_periods <- function(x, p = NULL, noms = NULL) {
   df    <- df_periods(x)
   mejor <- df[df$pos.max[df$pos.max != 1][p], ]
   
-  if(is.null(txt)) {
-    txt <- c(" most important period is ", "Frecuency", "Period")
+  if(is.null(noms)) {
+    noms <- c(" most important period is ", "Frecuency", "Period")
   }
   
   opts <- list(
@@ -41,11 +41,11 @@ plot_periods <- function(x, p = NULL, txt = NULL) {
     xAxis = list(
       list(type = "category", data = round(df$freq, 3),
            axisPointer = list(label = list(formatter = htmlwidgets::JS(paste0(
-             "function(params){return('", txt[2], ": ' + params.value)}"))))
+             "function(params){return('", noms[2], ": ' + params.value)}"))))
       ),
       list(type = "category", data = round(df$per, 3),
            axisPointer = list(label = list(formatter = htmlwidgets::JS(paste0(
-             "function(params){return('", txt[3], ": ' + params.value)}"))))
+             "function(params){return('", noms[3], ": ' + params.value)}"))))
       )
     ),
     yAxis = list(type = "value"),
@@ -67,7 +67,7 @@ plot_periods <- function(x, p = NULL, txt = NULL) {
         label = list(
           formatter = htmlwidgets::JS(paste0(
             "function(params){\n", 
-            "  return '", p, txt[1], round(mejor$per, 2),
+            "  return '", p, noms[1], round(mejor$per, 2),
             "'\n}"
           )), show = T, minMargin = 10, position = 'top'
         )

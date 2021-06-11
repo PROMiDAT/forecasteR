@@ -1,6 +1,6 @@
 Package: forecasteR
 Title: Time Series Forecast System
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: 
     c(person(given = "Oldemar", family = "Rodriguez", role = c("aut", "cre"),
              email = "oldemar.rodriguez@ucr.ac.cr"),
@@ -19,6 +19,7 @@ Imports:
     rlang,
     shiny,
     shinyjs,
+    shinyAce,
     echarts4r,
     htmlwidgets,
     colourpicker,

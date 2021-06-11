@@ -142,11 +142,40 @@ grafico.errores <- function (errores) {
   
   res <- errores %>% e_charts(vars)
   
+  text_tooltip <- ""
+  for (i in 1:nrow(errores)) {
+    text_tooltip <- paste0(text_tooltip, "'<br/>", errores$vars[i], 
+                           ": ' + (params.value[", i-1, "]-10).toFixed(3)")
+    if(i < nrow(errores)) text_tooltip <- paste0(text_tooltip, " + ")
+  }
+  
   for (i in 1:(ncol(errores) - 1)) {
     res <- res %>% 
       e_radar_(colnames(errores)[i], name = colnames(errores)[i], max = 110,
                areaStyle = list())
   }
   
-  res %>% e_tooltip() %>% e_show_loading()
+  res %>% e_show_loading() %>%
+    e_tooltip(
+      formatter = htmlwidgets::JS(paste0(
+        "function(params) {
+          return(params.name + ", text_tooltip, ")
+        }"
+      )), trigger = "item"
+    )
+}
+
+############################### Generar Código ################################
+code.plots <- function(noms, colors) {
+  paste0(
+    "serie           <- data.frame(ts.union(train, test, ", noms[4], "))\n",
+    "serie$date      <- seriedf[[1]]\n",
+    "colnames(serie) <- c('train', 'test', 'pred', 'date')\n\n",
+    "serie %>% e_charts(x = date) %>%\n", 
+    "  e_line(serie = train, name = '", noms[1], "') %>%\n",
+    "  e_line(serie = test,  name = '", noms[2], "') %>%\n",
+    "  e_line(serie = pred,  name = '", noms[3], "') %>%\n",
+    "  e_datazoom() %>% e_tooltip(trigger = 'axis') %>% e_show_loading() %>%\n",
+    "  e_color(c('", paste(colors, collapse = "','"), "'))"
+  )
 }

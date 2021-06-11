@@ -114,8 +114,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
   observeEvent(updateData$idioma, {
     lg <- updateData$idioma
     fechas <- list("years", "months", "days", "hours", "min", "sec")
-    names(fechas) <- c(tr("anual", lg), tr("mes", lg), tr("dia", lg), 
-                       tr("hora", lg), tr("minuto", lg), tr("segundo", lg))
+    names(fechas) <- tr(c('anual', 'mes', 'dia', 'hora', 'minuto', 'segundo'), lg)
     updateSelectInput("tipofecha", session = session, choices = fechas)
   })
   
@@ -145,30 +144,35 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
   
   # Función del botón loadButton
   observeEvent(input$loadButton, {
-    rvmodelo$ms <- list(prom = NULL, inge = NULL, eing = NULL, drif = NULL,
-                        deco = NULL, holt = NULL, arim = NULL)
+    for (nom in names(rvmodelo)) {
+      rvmodelo[[nom]] <- NULL
+    }
+    
     updateData$datos   <- NULL
     updateData$seriedf <- NULL
     updateData$seriets <- NULL
     updateData$train   <- NULL
     updateData$test    <- NULL
     updateData$ts_type <- NULL
+    updateData$code    <- NULL
     
     ruta       <- isolate(input$archivo)
     sep        <- isolate(input$sep)
     dec        <- isolate(input$dec)
     encabezado <- isolate(input$header)
+    
     tryCatch({
-      #codigo <- code.carga(rowname, ruta$name, sep, dec, encabezado, deleteNA)
-      #updateAceEditor(session, "fieldCodeData", value = codigo)
-      
       updateData$datos <- carga.datos(ruta$datapath, sep, dec, encabezado)
+      cod              <- code.carga(ruta$name, sep, dec, encabezado)
+      updateData$code  <- list(carga = list(doccarga = cod))
       if(ncol(var.numericas(updateData$datos)) <= 0) {
         updateData$datos <- NULL
+        updateData$code  <- NULL
         showNotification("ERROR 00020: Check Separators", type = "error")
       }
     }, error = function(e) {
       updateData$datos <- NULL
+      updateData$code  <- NULL
       showNotification(paste0("ERROR 00010: ", e), type = "error")
     })
   })
@@ -288,8 +292,9 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
   
   # Función del botón tsdfButton
   observeEvent(input$tsdfButton, {
-    rvmodelo$ms <- list(prom = NULL, inge = NULL, eing = NULL, drif = NULL,
-                        deco = NULL, holt = NULL, arim = NULL)
+    for (nom in names(rvmodelo)) {
+      rvmodelo[[nom]] <- NULL
+    }
     
     updateData$seriedf <- NULL
     updateData$seriets <- NULL
@@ -298,8 +303,6 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
     updateData$ts_type <- NULL
     
     tryCatch({
-      #codigo <- code.carga(rowname, ruta$name, sep, dec, encabezado, deleteNA)
-      #updateAceEditor(session, "fieldCodeData", value = codigo)
       datos <- isolate(updateData$datos)
       
       if(input$colFecha == "nuevo") {
@@ -310,12 +313,20 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
         updateData$seriedf <- data.frame(
           fechas = fechas, valor = datos[[input$sel_valor]])
         updateData$ts_type <- isolate(input$tipofecha)
+        
+        cod <- code.tsdf(input$sel_valor, ini, fin, input$tipofecha)
+        updateData$code <- list(carga = list(
+          doccarga = updateData$code$carga$doccarga, doctsdf = cod))
       } else {
         fechas <- text_toDate(datos[[input$sel_fecha]])
         
         updateData$seriedf <- data.frame(
           fechas = fechas[[1]], valor = datos[[input$sel_valor]])
         updateData$ts_type <- fechas[[2]]
+        
+        cod <- code.tsdf(input$sel_valor, cold = input$sel_fecha)
+        updateData$code <- list(carga = list(
+          doccarga = updateData$code$carga$doccarga, doctsdf = cod))
       }
     }, error = function(e) {
       updateData$seriedf <- NULL
@@ -381,11 +392,10 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
         names(fechas) <- c(tr("dia", lg), tr("anual", lg))
       } else if(tipo == "min") {
         fechas <- list(60, 1440, 525600)
-        names(fechas) <- c(tr("hora", lg), tr("dia", lg), tr("anual", lg))
+        names(fechas) <- tr(c('hora', 'dia', 'anual'), lg)
       } else if(tipo == "sec") {
         fechas <- list(60, 3600, 86400, 31536000)
-        names(fechas) <- c(tr("minuto", lg), tr("hora", lg), tr("dia", lg), 
-                           tr("anual", lg))
+        names(fechas) <- tr(c('minuto', 'hora', 'dia', 'anual'), lg)
       }
       
       updateSelectInput("sel_patron", session = session, choices = fechas)
@@ -393,16 +403,15 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
   })
   
   observeEvent(input$tsButton, {
-    rvmodelo$ms <- list(prom = NULL, inge = NULL, eing = NULL, drif = NULL,
-                        deco = NULL, holt = NULL, arim = NULL)
+    for (nom in names(rvmodelo)) {
+      rvmodelo[[nom]] <- NULL
+    }
     
     updateData$seriets <- NULL
     updateData$train   <- NULL
     updateData$test    <- NULL
     
     tryCatch({
-      #codigo <- code.carga(rowname, ruta$name, sep, dec, encabezado, deleteNA)
-      #updateAceEditor(session, "fieldCodeData", value = codigo)
       datos   <- isolate(updateData$seriedf)
       tipo    <- isolate(updateData$ts_type)
       f       <- as.numeric(isolate(input$sel_patron))
@@ -415,6 +424,11 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
       updateData$seriets <- serie
       updateData$train   <- head(serie, n_train)
       updateData$test    <- tail(serie, n_test)
+      
+      cod <- code.ts(s, f, n_train, n_test)
+      updateData$code <- list(carga = list(
+        doccarga = updateData$code$carga$doccarga, 
+        doctsdf = updateData$code$carga$doctsdf, docts = cod))
     }, error = function(e) {
       updateData$seriets <- NULL
       updateData$train   <- NULL
@@ -427,7 +441,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
   output$plot_ts <- renderEcharts4r({
     train <- updateData$train
     test  <- updateData$test
-    names <- c(tr('train', updateData$idioma), tr('test', updateData$idioma))
+    names <- tr(c('train', 'test'), updateData$idioma)
     if(is.null(train) | is.null(test)) {
       return(NULL)
     }

@@ -145,42 +145,25 @@ carga.datos <- function(ruta = NULL, sep = ";", dec = ",", encabezado = T) {
 }
 
 ############################### Generar Código ################################
-# code.carga <- function(nombre.filas = T, ruta = NULL, separador = ";",
-#                        sep.decimal = ",", encabezado = T, incluir.NA = F) {
-#   res <- paste0(
-#     "datos <- read.table(stringsAsFactors = T, '", ruta, "', header=", encabezado, 
-#     ", sep='", separador, "', dec = '", sep.decimal, "'", 
-#     ifelse(nombre.filas, ", row.names = 1", ""), ")")
-#   res <- paste0(res, "\n", code.NA(incluir.NA))
-#   return(res)
-# }
-# 
-# code.NA <- function(deleteNA = T) {
-#   res <- ifelse(
-#     deleteNA, "datos <- na.omit(datos)\n",
-#     paste0(
-#       "Mode <- function(x) {\n  x[which.max(summary(x))]\n}\n",
-#       "for (var in colnames(datos)) {\n",
-#       "  if(any(is.na(datos[, var]))){\n",
-#       "    if(class(datos[, var]) %in% c('numeric', 'integer')) {\n",
-#       "      datos[, var][is.na(datos[, var])] <- mean(datos[, var], na.rm = T)\n",
-#       "    } else {\n",
-#       "      datos[, var][is.na(datos[, var])] <- Mode(datos[, var])\n",
-#       "    }\n  }\n}"))
-#   return(res)
-# }
-# 
-# code.trans <- function(var, nuevo.tipo) {
-#   if(nuevo.tipo == "categorico"){
-#     return(paste0(
-#       "datos[['", var, "']] <- as.factor(datos[['", var, "']])\n"))
-#   } else if(nuevo.tipo == "numerico") {
-#     return(paste0(
-#       "datos[['", var, "']] <- as.numeric(sub(',', '.', datos[['",
-#       var, "']], fixed = TRUE))\n"))
-#   } else {
-#     return(paste0(
-#       "datos <- datos.disyuntivos(datos, '", var,"')\n", 
-#       "datos[['", var, "']] <- NULL\n"))
-#   }
-# }
+
+code.carga <- function(ruta = NULL, separador = ";", sep.decimal = ",", 
+                       encabezado = T) {
+  paste0("datos <- read.table(stringsAsFactors = T, '", ruta, "', header=",
+         encabezado, ", sep='", separador, "', dec = '", sep.decimal, "')")
+}
+
+code.tsdf <- function(col, ini = NULL, fin = NULL, tipo = NULL, cold = NULL) {
+  agregar <- ifelse(
+    !is.null(cold), paste0("d <- text_toDate(datos[['", cold, "']])"),
+    paste0("d <- seq(as.POSIXct('", ini, "'), as.POSIXct('", fin, "'), by = '",
+           tipo, "')"))
+  paste0(agregar, "\nseriedf <- data.frame(d = d, v = datos[['", col, "']])")
+}
+
+code.ts <- function(s, f, n_train, n_test) {
+  paste0(
+    "seriets <- ts(seriedf[[2]], start = c(1, ", s, "), frequency = ", f, ")\n",
+    "train   <- head(seriets, ", n_train, ")\n",
+    "test    <- tail(seriets, ", n_test, ")"
+  )
+}

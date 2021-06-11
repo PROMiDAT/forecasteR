@@ -42,3 +42,52 @@ calibrar.arima <- function(train, test, period, ar = 0:2, es = 0:1) {
   
   return(model.c)
 }
+
+#' Best parameters arima model
+#'
+#' @param x a ts object.
+#'
+#' @author Diego Jimenez <diego.jimenez@promidat.com>
+#' @return echarts4r plot
+#' @export e_acf
+#' @importFrom stats acf qnorm
+#' @examples
+#' e_acf(AirPassengers)
+#' 
+e_acf <- function(x) {
+  res  <- acf(x, plot = F)
+  clim <- qnorm((1 + 0.95)/2)/sqrt(res$n.used)
+  res  <- data.frame(Lag = res$lag[, , 1], ACF = res$acf[, , 1])
+  lim  <- round(min(c(res$ACF, -clim)) - 0.06, 1)
+  
+  res %>% e_charts(Lag) %>% e_bar(ACF, barMaxWidth = 3) %>% 
+    e_mark_line(data = list(yAxis = clim)) %>% 
+    e_mark_line(data = list(yAxis = -clim)) %>% 
+    e_legend(show = F) %>% e_y_axis(min = lim, name = 'ACF') %>%
+    e_x_axis(name = 'Lag') %>% e_show_loading()
+}
+
+#' Best parameters arima model
+#'
+#' @param x a ts object.
+#'
+#' @author Diego Jimenez <diego.jimenez@promidat.com>
+#' @return echarts4r plot
+#' @export e_pacf
+#' @importFrom stats pacf qnorm
+#' @examples
+#' e_pacf(AirPassengers)
+#' 
+e_pacf <- function(x) {
+  res  <- pacf(x, plot = F)
+  clim <- qnorm((1 + 0.95)/2)/sqrt(res$n.used)
+  res  <- data.frame(Lag = res$lag[, , 1], ACF = res$acf[, , 1])
+  lim  <- round(min(c(res$ACF, -clim)) - 0.06, 1)
+  
+  res %>% e_charts(Lag) %>% e_bar(ACF, barMaxWidth = 3) %>% 
+    e_mark_line(data = list(yAxis = clim)) %>% 
+    e_mark_line(data = list(yAxis = -clim)) %>% 
+    e_legend(show = F) %>% e_y_axis(min = lim, name = 'ACF') %>%
+    e_x_axis(name = 'Lag') %>% e_show_loading()
+}
+

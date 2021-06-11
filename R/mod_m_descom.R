@@ -12,25 +12,40 @@
 mod_m_descom_ui <- function(id){
   ns <- NS(id)
   
-  opc_desc <- tabsOptions(heights = c(70, 50), tabs.content = list(
-    list(
-      options.run(ns("run_desc")), tags$hr(style = "margin-top: 0px;"),
-      conditionalPanel(
-        condition = "input.BoxDesc == 'tabPlot'", ns = ns,
-        colourpicker::colourInput(
-          ns("col_train_desc"), labelInput("coltrain"), "#5470c6", 
-          allowTransparent = T),
-        colourpicker::colourInput(
-          ns("col_test_desc"), labelInput("coltest"), "#91cc75", 
-          allowTransparent = T),
-        colourpicker::colourInput(
-          ns("col_p_desc"), labelInput("colpred"), "#fac858", 
-          allowTransparent = T)
-      )
-    ),
-    list(#codigo.monokai(ns("fieldCodeCor"),  height = "30vh"))
+  opc_desc <- div(
+    conditionalPanel(
+      condition = "input.BoxDesc == 'tabText' | input.BoxDesc == 'tabPlot'", ns = ns,
+      tabsOptions(list(icon("gear")), 100, 70, tabs.content = list(
+        list(
+          conditionalPanel(
+            condition = "input.BoxDesc == 'tabText'", ns = ns,
+            options.run(ns("run_desc")), tags$hr(style = "margin-top: 0px;"),
+          ),
+          conditionalPanel(
+            condition = "input.BoxDesc == 'tabPlot'", ns = ns,
+            options.run(NULL), tags$hr(style = "margin-top: 0px;"),
+            fluidRow(
+              col_4(
+                colourpicker::colourInput(
+                  ns("col_train_desc"), labelInput("coltrain"), "#5470c6", 
+                  allowTransparent = T)
+              ),
+              col_4(
+                colourpicker::colourInput(
+                  ns("col_test_desc"), labelInput("coltest"), "#91cc75", 
+                  allowTransparent = T)
+              ),
+              col_4(
+                colourpicker::colourInput(
+                  ns("col_p_desc"), labelInput("colpred"), "#fac858", 
+                  allowTransparent = T)
+              )
+            )
+          )
+        )
+      ))
     )
-  ))
+  )
   
   tagList(
     tabBoxPrmdt(
@@ -81,13 +96,24 @@ mod_m_descom_server <- function(input, output, session, updateData, rvmodelo) {
     train <- updateData$train
     test  <- updateData$test
     
-    modelo <- stl(train, s.window = "periodic")
-    pred   <- forecast(modelo, h = length(test))$mean
-    rvmodelo$ms$desc$model <- modelo
-    rvmodelo$ms$desc$pred  <- pred
-    rvmodelo$ms$desc$error <- tabla.errores(list(pred), test, c("desc"))
-    
-    rvmodelo$ms$desc$model
+    tryCatch({
+      modelo <- stl(train, s.window = "periodic")
+      pred   <- forecast(modelo, h = length(test))$mean
+      rvmodelo$desc$model <- modelo
+      rvmodelo$desc$pred  <- pred
+      rvmodelo$desc$error <- tabla.errores(list(pred), test, c("desc"))
+      
+      cod <- paste0(
+        "modelo.desc <- stl(train, h = length(test))\n", 
+        "pred.desc   <- modelo.desc$mean\n",
+        "error.desc  <- tabla.errores(list(pred.desc), test, 'STL')")
+      isolate(updateData$code[['desc']] <- list(docdescm = cod))
+      
+      modelo
+    }, error = function(e) {
+      showNotification(paste0("ERROR 0000: ", e), type = "error")
+      return(NULL)
+    })
   })
   
   output$table_desc <- DT::renderDataTable({
@@ -96,34 +122,54 @@ mod_m_descom_server <- function(input, output, session, updateData, rvmodelo) {
     seriedf <- tail(isolate(updateData$seriedf), length(test))
     seriedf[[1]] <- format(seriedf[[1]], '%Y-%m-%d %H:%M:%S')
     
-    res <- data.frame(seriedf[[1]], seriedf[[2]], rvmodelo$ms$desc$pred, 
-                      abs(seriedf[[2]] - rvmodelo$ms$desc$pred))
-    colnames(res) <- c(tr('date', lg), "Real", tr('table_m', lg), 
-                       tr('diff', lg))
-    
-    DT::datatable(
-      res, selection = 'none', editable = F, rownames = F, 
-      options = list(dom = 'frtp', scrollY = "50vh")
-    )
+    tryCatch({
+      res <- data.frame(seriedf[[1]], seriedf[[2]], rvmodelo$desc$pred, 
+                        abs(seriedf[[2]] - rvmodelo$desc$pred))
+      colnames(res) <- tr(c('date', 'Real', 'table_m', 'diff'), lg)
+      res[, 2:4] <- round(res[, 2:4], 3)
+      
+      cod <- paste0(
+        "s <- tail(seriedf, length(test))\n",
+        "res <- data.frame(s[[1]], s[[2]], pred.desc, abs(s[[2]] - pred.desc))\n",
+        "colnames(res) <- c('", paste(colnames(res), collapse = "','"), "')\n",
+        "res[, 2:4] <- round(res[, 2:4], 3)\nres")
+      isolate(updateData$code[['desc']][['docdesct']] <- cod)
+      
+      DT::datatable(res, selection = 'none', editable = F, rownames = F, 
+                    options = list(dom = 'frtp', scrollY = "50vh"))
+    }, error = function(e) {
+      showNotification(paste0("ERROR 0000: ", e), type = "error")
+      return(NULL)
+    })
   })
   
   output$plot_desc <- renderEcharts4r({
     train <- isolate(updateData$train)
     test  <- isolate(updateData$test)
     lg    <- updateData$idioma
-    pred  <- rvmodelo$ms$desc$pred
+    pred  <- rvmodelo$desc$pred
     serie <- data.frame(ts.union(train, test, pred))
-    serie$fecha <- isolate(updateData$seriedf)[[1]]
-    colnames(serie) <- c("train", "test", "pred", "fecha")
-    colores <- c(input$col_train_desc, input$col_test_desc, input$col_p_desc)
+    serie$date <- isolate(updateData$seriedf)[[1]]
+    colnames(serie) <- c("train", "test", "pred", "date")
+    colors <- c(input$col_train_desc, input$col_test_desc, input$col_p_desc)
     
     tryCatch({
-      serie %>% e_charts(x = fecha) %>% 
-        e_line(serie = train, name = tr('train', lg)) %>%
-        e_line(serie = test,  name = tr('test', lg)) %>% 
-        e_line(serie = pred,  name = tr('table_m', lg)) %>% 
-        e_datazoom() %>% e_tooltip(trigger = 'axis') %>% e_show_loading() %>%
-        e_color(colores)
+      noms <- c(tr(c('train', 'test', 'table_m'), lg), 'pred.desc')
+      isolate(updateData$code[['desc']][['docdescp']] <- code.plots(noms, colors))
+      
+      opts <- list(
+        xAxis = list(
+          type = "category", data = format(serie$date, "%Y-%m-%d %H:%M:%S")),
+        yAxis = list(show = TRUE),
+        series = list(
+          list(type = "line", data = serie$train, name = noms[1]),
+          list(type = "line", data = serie$test,  name = noms[2]),
+          list(type = "line", data = serie$pred,  name = noms[3])
+        )
+      )
+      
+      e_charts() %>% e_list(opts) %>% e_legend() %>% e_datazoom() %>% 
+        e_tooltip(trigger = 'axis') %>% e_show_loading() %>% e_color(colors)
     }, error = function(e) {
       showNotification(paste0("ERROR 0000: ", e), type = "error")
       return(NULL)
@@ -133,17 +179,25 @@ mod_m_descom_server <- function(input, output, session, updateData, rvmodelo) {
   output$error_desc <- renderUI({
     lg <- updateData$idioma
     
-    div(
-      style = "display: table; width: 100%; height: 70vh; overflow: scroll;",
-      infoBox(tr("mse", lg), rvmodelo$ms$desc$error$MSE, NULL, 
-              icon("warning"), "red", 6, fill = T),
-      infoBox(tr("rmse", lg), rvmodelo$ms$desc$error$RMSE, NULL, 
-              icon("warning"), "yellow", 6, fill = T),
-      infoBox(tr("pfa", lg), rvmodelo$ms$desc$error$PFA, NULL, 
-              icon("level-up"), "green", 6, fill = T),
-      infoBox(tr("ptfa", lg), rvmodelo$ms$desc$error$PTFA, NULL, 
-              icon("level-up"), "navy", 6, fill = T)
-    )
+    tryCatch({
+      res <- div(
+        style = "display: table; width: 100%; height: 70vh; overflow: scroll;",
+        infoBox(tr("mse", lg), rvmodelo$desc$error$MSE, NULL, 
+                icon("warning"), "red", 6, fill = T),
+        infoBox(tr("rmse", lg), rvmodelo$desc$error$RMSE, NULL, 
+                icon("warning"), "yellow", 6, fill = T),
+        infoBox(tr("pfa", lg), rvmodelo$desc$error$PFA, NULL, 
+                icon("level-up"), "green", 6, fill = T),
+        infoBox(tr("ptfa", lg), rvmodelo$desc$error$PTFA, NULL, 
+                icon("level-up"), "navy", 6, fill = T)
+      )
+      isolate(updateData$code[['desc']][['docdesce']] <- "error.desc")
+      
+      res
+  }, error = function(e) {
+    showNotification(paste0("ERROR 0000: ", e), type = "error")
+    return(NULL)
+  })
   })
 }
     
