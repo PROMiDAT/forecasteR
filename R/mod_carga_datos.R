@@ -8,6 +8,7 @@
 #'
 #' @importFrom shiny NS tagList
 #' @importFrom stats ts.union
+#' @importFrom lubridate duration
 mod_carga_datos_ui <- function(id) {
   ns <- NS(id)
   btn_s <- "width: 100%;float: right;background-color: #3c8dbc;color: white;"
@@ -237,6 +238,10 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
       f <- 'YYYY-MM-01 00:00:00'
     } else if(input$tipofecha == "days") {
       f <- 'YYYY-MM-DD 00:00:00'
+    } else if(input$tipofecha == "hours") {
+      f <- 'YYYY-MM-DD HH:00:00'
+    } else if(input$tipofecha == "min") {
+      f <- 'YYYY-MM-DD HH:mm:00'
     } else {
       f <- 'YYYY-MM-DD HH:mm:SS'
     }
@@ -420,7 +425,7 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
       n_test  <- nrow(datos) - n_train
       s       <- get_start(datos[[1]][1], tipo, f)
       
-      serie <- ts(datos[[2]], start = c(1, s), frequency = f)
+      serie <- ts(datos[[2]], start = s, frequency = f)
       updateData$seriets <- serie
       updateData$train   <- head(serie, n_train)
       updateData$test    <- tail(serie, n_test)
@@ -446,14 +451,22 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
       return(NULL)
     }
     
-    serie <- data.frame(ts.union(train, test))
-    serie$fecha <- isolate(updateData$seriedf)[[1]]
+    serie      <- data.frame(ts.union(train, test))
+    serie$date <- isolate(updateData$seriedf)[[1]]
     
     tryCatch({
-      serie %>% e_charts(x = fecha) %>% 
-        e_line(serie = train, name = names[1]) %>%
-        e_line(serie = test,  name = names[2]) %>% 
-        e_datazoom() %>% e_tooltip(trigger = "axis") %>% e_show_loading()
+      opts <- list(
+        xAxis = list(
+          type = "category", data = format(serie$date, "%Y-%m-%d %H:%M:%S")),
+        yAxis = list(show = TRUE),
+        series = list(
+          list(type = "line", data = serie$train, name = names[1]),
+          list(type = "line", data = serie$test,  name = names[2])
+        )
+      )
+      
+      e_charts() %>% e_list(opts) %>% e_legend() %>% e_datazoom() %>% 
+        e_tooltip(trigger = 'axis') %>% e_show_loading()
     }, error = function(e) {
       showNotification(paste0("ERROR 00070: ", e), type = "error")
       return(NULL)

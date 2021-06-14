@@ -173,7 +173,7 @@ mod_arima_server <- function(input, output, session, updateData, rvmodelo) {
         modelo$arma[6], ", ", modelo$arma[2], "), seasonal = list(order = c(",
         modelo$arma[3], ", ", modelo$arma[7], ", ", modelo$arma[4],
         "), period = ", modelo$arma[5], "))\n", 
-        "pred.arim   <- modelo.arim$mean\n",
+        "pred.arim   <- forecast(modelo.arim, h = length(test))$mean\n",
         "error.arim  <- tabla.errores(list(pred.arim), test, 'ARIMA')")
       isolate(updateData$code[['arim']] <- list(docarimm = cod))
       

@@ -100,6 +100,57 @@ les;Seleccione hasta dónde probar (P, D, Q):;Select how far to test (P, D, Q):
 corre;Correlograma;Correlogram
 news;Predicción Individuos Nuevos;Predict New Cases
 n_pred;Indique la cantidad de fechas a predecir:;Indicate the number of dates to predict:
+linf;Limite inferior;Lower bound
+lsup;Limite Superior;Upper bound
 copyright;TODOS LOS DERECHOS RESERVADOS A;ALL RIGHTS RESERVED TO
 info;MÁS INFORMACIÓN;MORE INFORMATION
 version;VERSIÓN DEL SISTEMA;SYSTEM VERSION
+doccarga;Carga de datos;Load data
+doctsdf;Serie de tiempo (DF);Time series (DF)
+docts;Serie de tiempo (ts);Time series (ts)
+docnormal;Gráfico de Normalidad;Normality Plot
+docqq;Gráfico de Normalidad QQ;QQ Plot Normal
+docnormaldf;Test de Normalidad;Normality Test
+doctc;Tendencia y Ciclicidad;Trend and Cyclicality
+docdesc;Gráfico de Descomposición;Decomposition Plot
+docperi;Periodograma;Periodogram
+docpromm;Modelo del Método Promedio;Average Method Model
+docpromt;Tabla de la predicción del Método Promedio;Average prediction Method table
+docpromp;Gráfico de la predicción del Método Promedio;Average Method prediction plot
+docprome;Error del Método Promedio;Average Method Error
+docnaivm;Modelo del Método Ingenuo;Naïve prediction Method table
+docnaivt;Tabla de la predicción del Método Ingenuo;Naïve Method Model
+docnaivp;Gráfico de la predicción del Método Ingenuo;Naïve prediction Method plot
+docnaive;Error del Método Ingenuo;Naïve Method Error
+docsnaim;Modelo del Método Estacional Ingenuo;Seasonal Naïve Method Model
+docsnait;Tabla de la predicción del Método Estacional Ingenuo;Seasonal Naïve prediction Method table
+docsnaip;Gráfico de la predicción del Método Estacional Ingenuo;Seasonal Naïve prediction Method plot
+docsnaie;Error del Método Estacional Ingenuo;Seasonal Naïve Method Error
+docdrifm;Modelo del Método Desvío;Drift Method Model
+docdrift;Tabla de la predicción del Método Desvío;Drift prediction Method table
+docdrifp;Gráfico de la predicción del Método Desvío;Drift Method prediction plot
+docdrife;Error del Método Desvío;Drift Method Error
+docdescm;Modelo del Método Descomposición;Decomposition Method Model
+docdesct;Tabla de la predicción del Método Descomposición;Decomposition prediction Method table
+docdescp;Gráfico de la predicción del Método Descomposición;Decomposition Method prediction plot
+docdesce;Error del Método Descomposición;Decomposition Method Error
+docredsm;Modelo del Método Redes Neuronales;Neural Net Method Model
+docredst;Tabla de la predicción del Método Redes Neuronales;Neural Net prediction Method table
+docredsp;Gráfico de la predicción del Método Redes Neuronales;Neural Net Method prediction plot
+docredse;Error del Método Redes Neuronales;Neural Net Method Error
+docholtm;Modelo del Método Holt-Winters;Holt-Winters Method Model
+docholtt;Tabla de la predicción del Método Holt-Winters;Holt-Winters prediction Method table
+docholtp;Gráfico de la predicción del Método Holt-Winters;Holt-Winters Method prediction plot
+docholte;Error del Método Holt-Winters;Holt-Winters Method Error
+docarimm;Modelo del Método ARIMA;ARIMA Method Model
+docarima;Autocorrelación Simple;Simple Autocorrelation
+docarimc;Autocorrelación Parcial;Partial Autocorrelation
+docarimo;Periodograma (Serie de Pruebas);Periodogram (Test Time Series)
+docarimt;Tabla de la predicción del Método ARIMA;ARIMA prediction Method table
+docarimp;Gráfico de la predicción del Método ARIMA;ARIMA Method prediction plot
+docarime;Error del Método ARIMA;ARIMA Method Error
+doccompt;Error de todos los modelos;Error of all models
+doccompe;Gráfico del Error de todos los modelos;Error plot of all models
+doccompp;Gráfico de la predicción de todos los modelos;Prediction plot for all models
+docmodel;Generación del Modelo;Model Generation
+docpred;Gráfico de la predicción;Prediction plot

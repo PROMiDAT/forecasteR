@@ -104,8 +104,8 @@ mod_m_descom_server <- function(input, output, session, updateData, rvmodelo) {
       rvmodelo$desc$error <- tabla.errores(list(pred), test, c("desc"))
       
       cod <- paste0(
-        "modelo.desc <- stl(train, h = length(test))\n", 
-        "pred.desc   <- modelo.desc$mean\n",
+        "modelo.desc <- stl(train, s.window = 'periodic')\n", 
+        "pred.desc   <- forecast(modelo.desc, h = length(test))$mean\n",
         "error.desc  <- tabla.errores(list(pred.desc), test, 'STL')")
       isolate(updateData$code[['desc']] <- list(docdescm = cod))
       

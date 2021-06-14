@@ -10,7 +10,7 @@
 #' \tabular{ll}{
 #' Package: \tab forecasteR\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.1.2\cr
+#' Version: \tab 0.1.3\cr
 #' Date: \tab 2021-06-04\cr
 #' License: \tab GPL (>=2)\cr
 #' }

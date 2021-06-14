@@ -179,3 +179,20 @@ code.plots <- function(noms, colors) {
     "  e_color(c('", paste(colors, collapse = "','"), "'))"
   )
 }
+
+code.plotnew <- function(tipo, noms) {
+  paste0(
+    "datos <- ts.union(pred$mean, pred$lower[, 2], pred$upper[, 2])\n",
+    "datos <- ts.union(seriets, datos)\n",
+    "datos <- data.frame(datos)\n",
+    "names(datos) <- c('s', 'p', 'liminf', 'limsup')\n",
+    "datos$fecha <- seq(from = seriedf[[1]][1], by = '", tipo, "', length.out = nrow(datos))\n",
+    "datos$fecha <- format(datos$fecha, '%Y-%m-%d %H:%M:%S')\n\n",
+    "datos %>% e_charts(x = fecha) %>%\n",
+    "  e_line(serie = s, name = '", noms[1], "') %>%\n", 
+    "  e_line(serie = p, name = '", noms[2], "') %>%\n",
+    "  e_band(min = liminf, max = limsup,\n",
+    "         name = c('", noms[3], "', '", noms[4], "')) %>%\n",
+    "  e_tooltip(trigger = 'axis') %>% e_datazoom() %>% e_show_loading()"
+  )
+}

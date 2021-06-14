@@ -172,96 +172,72 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     lg <- updateData$idioma
     fechas <- list("years", "months", "days", "hours", "min", "sec")
     names(fechas) <- tr(c("anual", "mes", "dia", "hora", "minuto", "segundo"), lg)
-    updateSelectInput("n_tipofecha", session = session, choices = fechas)
+    updateSelectInput(session, "n_tipofecha", choices = fechas)
     
     models <- list("prom", "naiv", "snai", "drif", 
                    "desc", "reds", "holt", "arim")
     names(models) <- tr(c("prom", "naiv", "snai", "drif", 
                           "desc", "reds", "holt", "arim"), lg)
-    updateSelectInput("sel_model", session = session, choices = models)
+    updateSelectInput(session, "sel_model", choices = models)
   })
   
   # Hide/Show Menu
   observeEvent(input$btn_prev3, {
-    show(id = "newdf", anim = T, animType = "slide")
-    hide(id = "newtsdf", anim = T, animType = "slide")
-    hide(id = "newts", anim = T, animType = "slide")
-    hide(id = "newmodel", anim = T, animType = "slide")
-    hide(id = "newpred", anim = T, animType = "slide")
+    show(id = "newdf",    anim = T, animType = "slide")
+    hide(id = "newtsdf",  anim = T, animType = "slide")
   })
   observeEvent(input$btn_next3, {
-    hide(id = "newdf", anim = T, animType = "slide")
-    show(id = "newtsdf", anim = T, animType = "slide")
-    hide(id = "newts", anim = T, animType = "slide")
-    hide(id = "newmodel", anim = T, animType = "slide")
-    hide(id = "newpred", anim = T, animType = "slide")
+    hide(id = "newdf",    anim = T, animType = "slide")
+    show(id = "newtsdf",  anim = T, animType = "slide")
   })
   observeEvent(input$btn_prev4, {
-    hide(id = "newdf", anim = T, animType = "slide")
-    show(id = "newtsdf", anim = T, animType = "slide")
-    hide(id = "newts", anim = T, animType = "slide")
-    hide(id = "newmodel", anim = T, animType = "slide")
-    hide(id = "newpred", anim = T, animType = "slide")
+    show(id = "newtsdf",  anim = T, animType = "slide")
+    hide(id = "newts",    anim = T, animType = "slide")
   })
   observeEvent(input$btn_next4, {
-    hide(id = "newdf", anim = T, animType = "slide")
-    hide(id = "newtsdf", anim = T, animType = "slide")
-    show(id = "newts", anim = T, animType = "slide")
-    hide(id = "newmodel", anim = T, animType = "slide")
-    hide(id = "newpred", anim = T, animType = "slide")
+    hide(id = "newtsdf",  anim = T, animType = "slide")
+    show(id = "newts",    anim = T, animType = "slide")
   })
   observeEvent(input$btn_prev5, {
-    hide(id = "newdf", anim = T, animType = "slide")
-    hide(id = "newtsdf", anim = T, animType = "slide")
-    show(id = "newts", anim = T, animType = "slide")
+    show(id = "newts",    anim = T, animType = "slide")
     hide(id = "newmodel", anim = T, animType = "slide")
-    hide(id = "newpred", anim = T, animType = "slide")
   })
   observeEvent(input$btn_next5, {
-    hide(id = "newdf", anim = T, animType = "slide")
-    hide(id = "newtsdf", anim = T, animType = "slide")
-    hide(id = "newts", anim = T, animType = "slide")
+    hide(id = "newts",    anim = T, animType = "slide")
     show(id = "newmodel", anim = T, animType = "slide")
-    hide(id = "newpred", anim = T, animType = "slide")
   })
   observeEvent(input$btn_prev6, {
-    hide(id = "newdf", anim = T, animType = "slide")
-    hide(id = "newtsdf", anim = T, animType = "slide")
-    hide(id = "newts", anim = T, animType = "slide")
     show(id = "newmodel", anim = T, animType = "slide")
-    hide(id = "newpred", anim = T, animType = "slide")
+    hide(id = "newpred",  anim = T, animType = "slide")
   })
   observeEvent(input$btn_next6, {
-    hide(id = "newdf", anim = T, animType = "slide")
-    hide(id = "newtsdf", anim = T, animType = "slide")
-    hide(id = "newts", anim = T, animType = "slide")
     hide(id = "newmodel", anim = T, animType = "slide")
-    show(id = "newpred", anim = T, animType = "slide")
+    show(id = "newpred",  anim = T, animType = "slide")
   })
   
   ############################# Carga de datos ################################
   
   # Función del botón n_loadButton
   observeEvent(input$n_loadButton, {
-    updateNew$modelo  <- NULL
-    updateNew$datos   <- NULL
-    updateNew$seriedf <- NULL
-    updateNew$seriets <- NULL
-    updateNew$ts_type <- NULL
+    updateNew$modelo   <- NULL
+    updateNew$datos    <- NULL
+    updateNew$seriedf  <- NULL
+    updateNew$seriets  <- NULL
+    updateNew$ts_type  <- NULL
+    updateData$codenew <- NULL
     
     ruta       <- isolate(input$n_file)
     sep        <- isolate(input$n_sep)
     dec        <- isolate(input$n_dec)
     encabezado <- isolate(input$n_header)
     tryCatch({
-      #codigo <- code.carga(rowname, ruta$name, sep, dec, encabezado, deleteNA)
-      #updateAceEditor(session, "fieldCodeData", value = codigo)
-      
       updateNew$datos <- carga.datos(ruta$datapath, sep, dec, encabezado)
       if(ncol(var.numericas(updateNew$datos)) <= 0) {
         updateNew$datos <- NULL
         showNotification("ERROR 00020: Check Separators", type = "error")
       }
+      cod                 <- code.carga(ruta$name, sep, dec, encabezado)
+      updateData$codenew  <- list(doccarga = cod)
     }, error = function(e) {
       updateNew$datos <- NULL
       showNotification(paste0("ERROR 00010: ", e), type = "error")
@@ -272,10 +248,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
   output$n_tabladatos <- DT::renderDataTable({
     datos  <- updateNew$datos
     nombre <- str_remove(isolate(input$n_file$name), '\\..[^\\.]*$')
-    tipos  <- c(
-      tr("numerico",   isolate(updateData$idioma)),
-      tr("categorico", isolate(updateData$idioma))
-    )
+    tipos  <- tr(c("numerico", "categorico"), isolate(updateData$idioma))
     
     tryCatch({
       nombre.columnas <- c("ID", colnames(datos))
@@ -301,7 +274,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
       showNotification(paste0("ERROR 00030: ", e), type = "error")
       return(NULL)
     })
-  }, server = F)
+  }, server = T)
   
   # Actualiza opciones al cargar tabla de datos
   observeEvent(updateNew$datos, {
@@ -388,8 +361,6 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     updateNew$ts_type <- NULL
     
     tryCatch({
-      #codigo <- code.carga(rowname, ruta$name, sep, dec, encabezado, deleteNA)
-      #updateAceEditor(session, "fieldCodeData", value = codigo)
       datos <- isolate(updateNew$datos)
       
       if(input$n_colFecha == "nuevo") {
@@ -400,12 +371,20 @@ mod_nuevos_server <- function(input, output, session, updateData) {
         updateNew$seriedf <- data.frame(
           fechas = fechas, valor = datos[[input$sel_n_valor]])
         updateNew$ts_type <- isolate(input$n_tipofecha)
+        
+        cod <- code.tsdf(input$sel_n_valor, ini, fin, input$n_tipofecha)
+        updateData$codenew <- list(doccarga = updateData$codenew$doccarga,
+                                   doctsdf = cod)
       } else {
         fechas <- text_toDate(datos[[input$sel_n_fecha]])
         
         updateNew$seriedf <- data.frame(
           fechas = fechas[[1]], valor = datos[[input$sel_n_valor]])
         updateNew$ts_type <- fechas[[2]]
+        
+        cod <- code.tsdf(input$sel_valor, cold = input$sel_n_fecha)
+        updateData$codenew <- list(doccarga = updateData$codenew$doccarga,
+                                   doctsdf = cod)
       }
     }, error = function(e) {
       updateNew$seriedf <- NULL
@@ -484,15 +463,18 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     updateNew$seriets <- NULL
     
     tryCatch({
-      #codigo <- code.carga(rowname, ruta$name, sep, dec, encabezado, deleteNA)
-      #updateAceEditor(session, "fieldCodeData", value = codigo)
-      datos   <- isolate(updateNew$seriedf)
-      tipo    <- isolate(updateNew$ts_type)
-      f       <- as.numeric(isolate(input$sel_n_patron))
-      s       <- get_start(datos[[1]][1], tipo, f)
+      datos <- isolate(updateNew$seriedf)
+      tipo  <- isolate(updateNew$ts_type)
+      f     <- as.numeric(isolate(input$sel_n_patron))
+      s     <- get_start(datos[[1]][1], tipo, f)
       
-      serie <- ts(datos[[2]], start = c(1, s), frequency = f)
+      serie <- ts(datos[[2]], start = s, frequency = f)
       updateNew$seriets <- serie
+      
+      cod <- code.ts.new(s, f)
+      updateData$codenew <- list(
+        doccarga = updateData$codenew$doccarga, 
+        doctsdf = updateData$codenew$doctsdf, docts = cod)
     }, error = function(e) {
       updateNew$seriets <- NULL
       showNotification(paste0("ERROR 00060: ", e), type = "error")
@@ -508,9 +490,15 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     }
     
     tryCatch({
-      serie %>% e_charts(x = fechas) %>% e_line(serie = valor) %>%
-        e_datazoom() %>% e_tooltip(trigger = "axis") %>% e_show_loading() %>%
-        e_legend(show = F)
+      opts <- list(
+        xAxis = list(
+          type = "category", data = format(serie$fechas, "%Y-%m-%d %H:%M:%S")),
+        yAxis = list(show = TRUE),
+        series = list(list(type = "line", data = serie$valor))
+      )
+      
+      e_charts() %>% e_list(opts) %>% e_datazoom() %>% 
+        e_tooltip(trigger = 'axis') %>% e_show_loading()
     }, error = function(e) {
       showNotification(paste0("ERROR 00070: ", e), type = "error")
       return(NULL)
@@ -541,22 +529,33 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     
     if(sel_model == 'prom') {
       modelo <- meanf(serie, h = n_pred)
+      cod <- paste0("pred <- meanf(seriets, h = ", n_pred, ")")
     } else if(sel_model == 'naiv') {
       modelo <- naive(serie, h = n_pred)
+      cod <- paste0("pred <- naive(seriets, h = ", n_pred, ")")
     } else if(sel_model == 'snai') {
       modelo <- snaive(serie, h = n_pred)
+      cod <- paste0("pred <- snaive(seriets, h = ", n_pred, ")")
     } else if(sel_model == 'drif') {
       modelo <- rwf(serie, drift = T, h = n_pred)
+      cod <- paste0("pred <- rwf(seriets, drift = T, h = ", n_pred, ")")
     } else if(sel_model == 'desc') {
-      modelo <- stl(serie)
+      modelo <- stl(serie, s.window = "periodic")
+      cod <- paste0("model <- stl(seriets, s.window = 'periodic')\n",
+                    "pred  <- forecast(model, h = ", n_pred, ")")
     } else if(sel_model == 'reds') {
       tam    <- isolate(input$n_tam)
       modelo <- nnetar(serie, size = tam)
+      cod <- paste0("model <- nnetar(seriets, size = ", tam, ")\n",
+                    "pred  <- forecast(model, h = ", n_pred, ", PI = T)")
     } else if(sel_model == 'holt') {
       alpha  <- isolate(input$n_alpha)
       beta   <- isolate(input$n_beta)
       gamma  <- isolate(input$n_gamma)
       modelo <- HoltWinters(serie, alpha = alpha, beta = beta, gamma = gamma)
+      cod <- paste0("model <- HoltWinters(seriets, alpha = ", alpha, 
+                    ", beta = ", beta, ", gamma = ", gamma, ")\n",
+                    "pred <- forecast(model, h = ", n_pred, ")")
     } else if(sel_model == 'arim') {
       p <- isolate(input$n_p)
       d <- isolate(input$n_d)
@@ -567,6 +566,10 @@ mod_nuevos_server <- function(input, output, session, updateData) {
       periodo <- isolate(input$n_periodo)
       modelo <- arima(serie, order = c(p, d, q), 
                       seasonal = list(order = c(P, D, Q), period = periodo))
+      cod <- paste0("model <- arima(seriets, order = c(", p, ", ", d, ", ", q, 
+                    "),\n                seasonal = list(order = c(", P, ", ",
+                    D, ", ", Q, "), period = ", periodo, "))\n",
+                    "pred <- forecast(model, h = ", n_pred, ")")
     }
     
     isolate(updateNew$modelo <- modelo)
@@ -575,6 +578,12 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     } else {
       isolate(updateNew$pred <- forecast(modelo, h = n_pred, PI = T))
     }
+    
+    isolate(updateData$codenew <- list(
+      doccarga = updateData$codenew$doccarga, 
+      doctsdf  = updateData$codenew$doctsdf, 
+      docts    = updateData$codenew$docts,
+      docmodel = cod))
     
     modelo
   })
@@ -618,13 +627,32 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     ts_type <- isolate(updateNew$ts_type)
     datos$fecha <- seq(from = seriedf[[1]][1], by = ts_type, length.out = nrow(datos))
     datos$fecha <- format(datos$fecha, "%Y-%m-%d %H:%M:%S")
+    noms <- tr(c("serie", "table_m", "linf", "lsup"), updateData$idioma)
     
     tryCatch({
-      datos %>% e_charts(x = fecha) %>% 
-        e_line(serie = s) %>% e_line(serie = p) %>% 
-        e_band(min = liminf, max = limsup, 
-               name = c("Lower bound", "Upper bound")) %>% 
-        e_tooltip(trigger = 'axis') %>% e_datazoom() %>% e_show_loading()
+      cod <- code.plotnew(ts_type, noms)
+      isolate(updateData$codenew <- list(
+        doccarga = updateData$codenew$doccarga,
+        doctsdf  = updateData$codenew$doctsdf,
+        docts    = updateData$codenew$docts,
+        docmodel = updateData$codenew$docmodel,
+        docpred  = cod))
+      
+      opts <- list(
+        xAxis = list(type = "category", data = datos$fecha),
+        yAxis = list(show = TRUE),
+        series = list(
+          list(type = "line", data = datos$s, name = noms[1]),
+          list(type = "line", data = datos$p, name = noms[2]),
+          list(type = "line", data = datos$liminf, name = noms[3],
+               stack = "confidence-band", areaStyle = list(color = "rgba(0,0,0,0)")),
+          list(type = "line", data = datos$limsup, name = noms[4],
+               stack = "confidence-band", areaStyle = list())
+        )
+      )
+      
+      e_charts() %>% e_list(opts) %>% e_datazoom() %>% e_legend() %>%
+        e_tooltip(trigger = 'axis') %>% e_show_loading()
     }, error = function(e) {
       showNotification(paste0("ERROR 00050: ", e), type = "error")
       return(NULL)

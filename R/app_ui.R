@@ -133,7 +133,8 @@ app_ui <- function(request) {
         div(
           style = "margin-right: 15px; margin-left: 15px;", 
           h3(labelInput('code')), hr(), 
-          codigo.monokai("codeTotal", height = "70vh")
+          codigo.monokai("codeTotal", height = "70vh"),
+          downloadButton("btn_code", NULL, style = "width: 100%;")
         )
       )
     )

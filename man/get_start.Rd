@@ -14,7 +14,7 @@ get_start(ini, tipo_f, patron)
 \item{patron}{frequency of time series.}
 }
 \value{
-numeric
+numeric vector of lenght 2
 }
 \description{
 Get ts start of a time series

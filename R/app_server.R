@@ -26,7 +26,8 @@ app_server <- function( input, output, session ) {
   
   ##################################  Variables  ##############################
   updateData <- rv(datos = NULL, seriedf = NULL, seriets = NULL, train = NULL,
-                   test = NULL, ts_type = NULL, idioma = NULL, code = NULL)
+                   test = NULL, ts_type = NULL, idioma = NULL, code = NULL, 
+                   codenew = NULL)
   
   rvmodelo <- rv(prom = NULL, inge = NULL, eing = NULL, drif = NULL,
                  deco = NULL, holt = NULL, arim = NULL)
@@ -39,15 +40,31 @@ app_server <- function( input, output, session ) {
   })
   
   # Update Code
-  observeEvent(c(updateData$code, input$idioma), {
+  observeEvent(c(updateData$code, updateData$codenew, input$idioma), {
+    todo  <- updateData$code
+    nuevo <- updateData$codenew
+    lg    <- input$idioma
+    
+    comp <- todo[["comp"]]
+    todo[["comp"]] <- NULL
+    
     cod <- paste0(
       "library(forecast)\n", "library(lubridate)\n",
       "library(echarts4r)\n", "library(forecasteR)\n\n"
     )
-    for (modulo in updateData$code) {
+    for (modulo in todo) {
       for (n in names(modulo)) {
-        cod <- paste0(cod, "### ", n, "\n", modulo[[n]], "\n\n")
+        cod <- paste0(cod, "### ", tr(n, lg), "\n", modulo[[n]], "\n\n")
       }
+    }
+    for (n in names(comp)) {
+      cod <- paste0(cod, "### ", tr(n, lg), "\n", comp[[n]], "\n\n")
+    }
+    if(!is.null(nuevo)) {
+      cod <- paste0(cod, "############  ", tr("news", lg), "  ###########\n\n")
+    }
+    for (n in names(nuevo)) {
+      cod <- paste0(cod, "### ", tr(n, lg), "\n", nuevo[[n]], "\n\n")
     }
     updateAceEditor(session, "codeTotal", value = cod)
   })
@@ -65,6 +82,16 @@ app_server <- function( input, output, session ) {
       }
     })
   })
+  
+  # Descarga del código
+  output$btn_code <- downloadHandler(
+    filename = function() {
+      "forecasteR.R"
+    },
+    content = function(file) {
+      writeLines(input$codeTotal, file)
+    }
+  )
   
   ###################################  Modules  ###############################
   callModule(mod_carga_datos_server,  "carga_datos_ui_1", updateData, rvmodelo)

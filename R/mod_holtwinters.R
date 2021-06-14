@@ -134,7 +134,7 @@ mod_holtwinters_server <- function(input, output, session, updateData, rvmodelo)
       cod <- paste0(
         "modelo.holt <- HoltWinters(train, ", modelo$alpha[[1]], ", ", 
         modelo$beta[[1]], ", ", modelo$gamma[[1]], ")\n",
-        "pred.holt   <- modelo.holt$mean\n",
+        "pred.holt   <- forecast(modelo.holt, h = length(test))$mean\n",
         "error.holt  <- tabla.errores(list(pred.holt), test, 'HoltWinters')")
       isolate(updateData$code[['holt']] <- list(docholtm = cod))
       

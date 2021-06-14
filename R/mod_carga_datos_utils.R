@@ -106,34 +106,33 @@ text_toDate <- function(f) {
 #' @param patron frequency of time series.
 #'
 #' @author Diego Jimenez <diego.jimenez@promidat.com>
-#' @return numeric
+#' @return numeric vector of lenght 2
 #' @importFrom lubridate ymd_hms year hour minute second
 #' @export get_start
 #' @examples
 #' get_start(as.Date("2021-06-30"), 'days', 365)
 #' 
 get_start <- function(ini, tipo_f, patron) {
-  if(patron == 24) {
-    return(hour(ini) + 1)
+  if(patron == 1) {
+    return(c(year(ini), 1))
+  } else if(patron == 24) {
+    return(c(1, hour(ini) + 1))
   } else if(patron == 60 & tipo_f == "min") {
-    return(minute(ini) + 1)
+    return(c(1, minute(ini) + 1))
   } else if(patron == 1440) {
-    return(hour(ini) * 60 + minute(ini) + 1)
+    return(c(1, hour(ini) * 60 + minute(ini) + 1))
   } else if(patron == 60) {
-    return(second(ini) + 1)
+    return(c(1, second(ini) + 1))
   } else if(patron == 3600) {
-    return(minute(ini) * 60 + second(ini) + 1)
+    return(c(1, minute(ini) * 60 + second(ini) + 1))
   } else if(patron == 86400) {
-    return(hour(ini) * 3600 + minute(ini) * 60 + second(ini) + 1)
+    return(c(1, hour(ini) * 3600 + minute(ini) * 60 + second(ini) + 1))
   } else {
-    res <- 1
-    fecha <- ymd_hms(paste0(year(ini), "-01-01 00:00:00"))
-    
-    while(ini != fecha) {
-      res <- res + 1
-      fecha <- seq(fecha, length = 2, by = tipo_f)[2]
-    }
-    return(res)
+    start <- ymd_hms(paste0(year(ini), "-01-01 00:00:00"))
+    end   <- ymd_hms(paste0(year(ini), "-12-31 23:59:59"))
+    dates <- seq(start, end, by = tipo_f)
+    res   <- which(dates == ini) 
+    return(c(year(ini), res))
   }
 }
 
@@ -162,8 +161,14 @@ code.tsdf <- function(col, ini = NULL, fin = NULL, tipo = NULL, cold = NULL) {
 
 code.ts <- function(s, f, n_train, n_test) {
   paste0(
-    "seriets <- ts(seriedf[[2]], start = c(1, ", s, "), frequency = ", f, ")\n",
+    "seriets <- ts(seriedf[[2]], start = c(", s[1], ", ", s[2], "), frequency = ", f, ")\n",
     "train   <- head(seriets, ", n_train, ")\n",
     "test    <- tail(seriets, ", n_test, ")"
+  )
+}
+
+code.ts.new <- function(s, f) {
+  paste0(
+    "seriets <- ts(seriedf[[2]], start = c(", s[1], ", ", s[2], "), frequency = ", f, ")"
   )
 }
