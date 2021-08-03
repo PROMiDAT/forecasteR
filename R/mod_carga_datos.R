@@ -8,7 +8,7 @@
 #'
 #' @importFrom shiny NS tagList
 #' @importFrom stats ts.union
-#' @importFrom lubridate duration
+#' @importFrom lubridate duration wday days ymd_hms
 mod_carga_datos_ui <- function(id) {
   ns <- NS(id)
   btn_s <- "width: 100%;float: right;background-color: #3c8dbc;color: white;"
@@ -114,8 +114,8 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
   # Idioma
   observeEvent(updateData$idioma, {
     lg <- updateData$idioma
-    fechas <- list("years", "months", "days", "hours", "min", "sec")
-    names(fechas) <- tr(c('anual', 'mes', 'dia', 'hora', 'minuto', 'segundo'), lg)
+    fechas <- list("years", "months", "days", "workdays", "hours", "min", "sec")
+    names(fechas) <- tr(c('anual', 'mes', 'dia', 'dialab', 'hora', 'minuto', 'segundo'), lg)
     updateSelectInput("tipofecha", session = session, choices = fechas)
   })
   
@@ -232,12 +232,16 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
   
   # Generar input de fechas
   output$uifechas <- renderUI({
+    w <- F
     if(input$tipofecha == "years") {
       f <- 'YYYY-01-01 00:00:00'
     } else if(input$tipofecha == "months") {
       f <- 'YYYY-MM-01 00:00:00'
     } else if(input$tipofecha == "days") {
       f <- 'YYYY-MM-DD 00:00:00'
+    } else if(input$tipofecha == "workdays") {
+      f <- 'YYYY-MM-DD 00:00:00'
+      w <- T
     } else if(input$tipofecha == "hours") {
       f <- 'YYYY-MM-DD HH:00:00'
     } else if(input$tipofecha == "min") {
@@ -249,9 +253,9 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
     texto <- tr("hasta", updateData$idioma)
     
     fluidRow(
-      col_5(datetimeInput(ns("startdate"), f)),
+      col_5(datetimeInput(ns("startdate"), f, w)),
       col_2(h4(texto, style = "text-align: center;")),
-      col_5(datetimeInput(ns("enddate"), f))
+      col_5(datetimeInput(ns("enddate"), f, w))
     )
   })
   
@@ -263,6 +267,11 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
       ini <- ymd_hms(input$startdate)
       if(tipofecha == "months") {
         fin <- ini + months(n)
+      } else if(tipofecha == "workdays") {
+        aux <- ini + duration(n + (n/5 * 2) + 2, units = "days")
+        aux <- seq(ini, aux, by = "days")
+        aux <- aux[wday(aux) %in% c(2, 3, 4, 5, 6)]
+        fin <- aux[n+1]
       } else {
         fin <- ini + duration(n, units = tipofecha)
       }
@@ -283,6 +292,16 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
       fin <- ymd_hms(input$enddate)
       if(tipofecha == "months") {
         ini <- fin - months(n)
+      } else if(tipofecha == "workdays") {
+        fechas <- c()
+        fecha  <- as.Date(fin)
+        while(length(fechas) <= n) {
+          if(wday(fecha) %in% c(2, 3, 4, 5, 6)) {
+            fechas <- c(fechas, fecha)
+          }
+          fecha <- fecha - days(1)
+        }
+        ini <- as.Date(fechas[length(fechas)], origin = "1970-01-01")
       } else {
         ini <- fin - duration(n, units = tipofecha)
       }
@@ -313,13 +332,20 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
       if(input$colFecha == "nuevo") {
         ini <- isolate(updateDate$ini)
         fin <- isolate(updateDate$fin)
-        fechas <- seq(ini, fin, by = isolate(input$tipofecha))
+        
+        if(isolate(input$tipofecha) == "workdays") {
+          fechas <- seq(as.Date(ini), as.Date(fin), by = "days")
+          fechas <- fechas[wday(fechas) %in% c(2, 3, 4, 5, 6)]
+          cod <- code.tsdf(input$sel_valor, ini, fin, "days")
+        } else {
+          fechas <- seq(ini, fin, by = isolate(input$tipofecha))
+          cod <- code.tsdf(input$sel_valor, ini, fin, isolate(input$tipofecha))
+        }
         
         updateData$seriedf <- data.frame(
           fechas = fechas, valor = datos[[input$sel_valor]])
         updateData$ts_type <- isolate(input$tipofecha)
         
-        cod <- code.tsdf(input$sel_valor, ini, fin, input$tipofecha)
         updateData$code <- list(carga = list(
           doccarga = updateData$code$carga$doccarga, doctsdf = cod))
       } else {
@@ -390,8 +416,11 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
         fechas <- list(12)
         names(fechas) <- c(tr("anual", lg))
       } else if(tipo == "days") {
-        fechas <- list(365)
-        names(fechas) <- c(tr("anual", lg))
+        fechas <- list(365, 7)
+        names(fechas) <- c(tr("anual", lg), tr("semanal", lg))
+      } else if(tipo == "workdays") {
+        fechas <- list(260, 5)
+        names(fechas) <- c(tr("anual", lg), tr("semanal", lg))
       } else if(tipo == "hours") {
         fechas <- list(24, 8760)
         names(fechas) <- c(tr("dia", lg), tr("anual", lg))

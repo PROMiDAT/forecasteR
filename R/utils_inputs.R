@@ -1,11 +1,17 @@
-datetimeInput <- function(id, f = 'YYYY-01-01') {
+datetimeInput <- function(id, f = 'YYYY-01-01', weekends = F) {
   tagList(
     div(
       id = id, class = "input-group-date input-group date",
       tags$input(type = "text", class = "form-control"),
       tags$span(class = "input-group-addon", tags$i(class = "fa fa-calendar"))
     ),
-    tags$script(HTML(paste0("$('#", id, "').datetimepicker({format: '", f, "'});")))
+    
+    if(weekends) {
+      tags$script(HTML(paste0("$('#", id, "').datetimepicker({format: '", f,
+                              "', daysOfWeekDisabled: [0, 6]});")))
+    } else {
+      tags$script(HTML(paste0("$('#", id, "').datetimepicker({format: '", f, "'});")))
+    }
   )
 }
 

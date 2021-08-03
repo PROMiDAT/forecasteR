@@ -11,8 +11,8 @@ Performs a time series forecast.
 \tabular{ll}{
 Package: \tab forecasteR\cr
 Type: \tab Package\cr
-Version: \tab 0.1.3\cr
-Date: \tab 2021-06-04\cr
+Version: \tab 1.0.0\cr
+Date: \tab 2021-08-03\cr
 License: \tab GPL (>=2)\cr
 }
 }

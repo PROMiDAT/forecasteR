@@ -85,18 +85,22 @@ text_toDate <- function(f) {
   }
   
   tipo <- 'years'
-  ifelse(any(is.na(e[["y"]])),  e[["y"]] <- 2020, tipo <- 'years')
+  ifelse(any(is.na(e[["y"]])),  e[["y"]]  <- 2021, tipo <- 'years')
   ifelse(any(is.na(e[["ms"]])), e[["ms"]] <- 1, tipo <- 'months')
-  ifelse(any(is.na(e[["d"]])),  e[["d"]] <- 1, tipo <- 'days')
-  ifelse(any(is.na(e[["h"]])),  e[["h"]] <- 0, tipo <- 'hours')
-  ifelse(any(is.na(e[["m"]])),  e[["m"]] <- 0, tipo <- 'min')
-  ifelse(any(is.na(e[["s"]])),  e[["s"]] <- 0, tipo <- 'sec')
+  ifelse(any(is.na(e[["d"]])),  e[["d"]]  <- 1, tipo <- 'days')
+  ifelse(any(is.na(e[["h"]])),  e[["h"]]  <- 0, tipo <- 'hours')
+  ifelse(any(is.na(e[["m"]])),  e[["m"]]  <- 0, tipo <- 'min')
+  ifelse(any(is.na(e[["s"]])),  e[["s"]]  <- 0, tipo <- 'sec')
   
   res <- paste0(e[["y"]], "-", e[["ms"]], "-", e[["d"]], " ", 
                 e[["h"]], ":", e[["m"]], ":", e[["s"]])
-  res <- list(as.POSIXct(res, tz = "UTC"), tipo)
+  res <- as.POSIXct(res, tz = "UTC")
   
-  return(res)
+  if(tipo == "days" & !any(wday(res) %in% c(1, 7))) {
+    tipo <- "workdays"
+  }
+  
+  return(list(res, tipo))
 }
 
 #' Get ts start of a time series
@@ -115,6 +119,10 @@ text_toDate <- function(f) {
 get_start <- function(ini, tipo_f, patron) {
   if(patron == 1) {
     return(c(year(ini), 1))
+  } else if(patron == 5) {
+    return(c(1, wday(ini) - 1))
+  } else if(patron == 7) {
+    return(c(1, wday(ini)))
   } else if(patron == 24) {
     return(c(1, hour(ini) + 1))
   } else if(patron == 60 & tipo_f == "min") {
@@ -127,6 +135,11 @@ get_start <- function(ini, tipo_f, patron) {
     return(c(1, minute(ini) * 60 + second(ini) + 1))
   } else if(patron == 86400) {
     return(c(1, hour(ini) * 3600 + minute(ini) * 60 + second(ini) + 1))
+  } else if(patron == 260) {
+    ini <- as.Date(ini)
+    fechas <- seq(as.Date(paste0(year(ini), "-01-01")), 
+                  as.Date(paste0(year(ini), "-12-31")), by = "days")
+    return(c(year(ini), which(fechas == ini)))
   } else {
     start <- ymd_hms(paste0(year(ini), "-01-01 00:00:00"))
     end   <- ymd_hms(paste0(year(ini), "-12-31 23:59:59"))
@@ -140,7 +153,7 @@ carga.datos <- function(ruta = NULL, sep = ";", dec = ",", encabezado = T) {
   if(!is.null(ruta)) {
     ruta <- gsub("\\", "/", ruta, fixed = T)
   }
-  return(read.table(ruta, header = encabezado, sep = sep, dec = dec))
+  return(read.table(ruta, header = encabezado, sep = sep, dec = dec, row.names = NULL))
 }
 
 ############################### Generar Código ################################

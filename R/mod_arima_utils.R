@@ -87,7 +87,7 @@ e_pacf <- function(x) {
   res %>% e_charts(Lag) %>% e_bar(ACF, barMaxWidth = 3) %>% 
     e_mark_line(data = list(yAxis = clim)) %>% 
     e_mark_line(data = list(yAxis = -clim)) %>% 
-    e_legend(show = F) %>% e_y_axis(min = lim, name = 'ACF') %>%
+    e_legend(show = F) %>% e_y_axis(min = lim, name = 'PACF') %>%
     e_x_axis(name = 'Lag') %>% e_show_loading()
 }
 

@@ -20,6 +20,8 @@ cre;Crear;Create
 anual;Anual;Yearly
 mes;Mensual;Monthly
 dia;Diaria;Daily
+dialab;Por días laborales;By business days
+semanal;Semanal;Weekly
 hora;Por hora;Hourly
 minuto;Por minuto;By minute
 segundo;Por segundo;By second
