@@ -1,10 +1,12 @@
 key;es;en
 espanol;Español;Español
 serie;Serie de Tiempo;Time Series
+sdiff;Serie de Diferencias;Time Series of Differences
 code;Código;Code
 data;Datos;Data
 date;Fechas;Date
 cargar;Cargar;Load
+generar;Generar;Generate
 header;Nombre de Variables;Variables names 
 separador;Separador;Separator
 separadordec;Separador Decimal;Decimal Separator
@@ -90,8 +92,8 @@ txterror;Errores;Errors
 error_m;Índices Generales;General indexes
 mse;Error Cuadrático Medio;Mean Square Error
 rmse;Raiz de Error Cuadrático Medio;Root Mean Square Error
-pfa;Porcentaje de Fallos hacia Arriba;Percentage of Failures Up
-ptfa;Porcentaje del Total de Fallos hacia Arriba;Percentage of Total Failures Up
+re;Error Relativo;Relative Error
+cor;Correlación;Correlation
 diff;Diferencia;Difference
 tamred;Selecciona la cantidad de capas ocultas:;Select the number of hidden layers:
 cali;Calibrar;Calibrate

@@ -169,8 +169,8 @@ mod_redes_server <- function(input, output, session, updateData, rvmodelo) {
         )
       )
       
-      e_charts() %>% e_list(opts) %>% e_legend() %>% e_datazoom() %>% 
-        e_tooltip(trigger = 'axis') %>% e_show_loading() %>% e_color(colors)
+      e_charts() |> e_list(opts) |> e_legend() |> e_datazoom() |> 
+        e_tooltip(trigger = 'axis') |> e_show_loading() |> e_color(colors)
     }, error = function(e) {
       showNotification(paste0("ERROR 0000: ", e), type = "error")
       return(NULL)
@@ -187,9 +187,9 @@ mod_redes_server <- function(input, output, session, updateData, rvmodelo) {
                 icon("warning"), "red", 6, fill = T),
         infoBox(tr("rmse", lg), rvmodelo$reds$error$RMSE, NULL, 
                 icon("warning"), "yellow", 6, fill = T),
-        infoBox(tr("pfa", lg), rvmodelo$reds$error$PFA, NULL, 
+        infoBox(tr("re", lg), rvmodelo$reds$error$RE, NULL, 
                 icon("level-up"), "green", 6, fill = T),
-        infoBox(tr("ptfa", lg), rvmodelo$reds$error$PTFA, NULL, 
+        infoBox(tr("cor", lg), rvmodelo$reds$error$CORR, NULL, 
                 icon("level-up"), "navy", 6, fill = T)
       )
       isolate(updateData$code[['reds']][['docredse']] <- "error.reds")

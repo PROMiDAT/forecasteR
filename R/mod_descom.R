@@ -43,18 +43,18 @@ mod_descom_server <- function(input, output, session, updateData){
   
   # Gráfico de Descomposición
   output$plot_descom <- renderEcharts4r({
-    serie <- updateData$seriets
-    datos <- updateData$seriedf
+    serie  <- updateData$seriets
+    datos  <- updateData$seriedf
     colors <- c(input$col_hist, input$col_tend, input$col_seas, input$col_resi)
     
     lg    <- updateData$idioma
     noms  <- tr(c('serie', 'tend', 'seas', 'resi'), lg)
     
     tryCatch({
-      res <- e_decompose(serie, datos[[1]], noms) %>% e_color(colors)
+      res <- e_decompose(serie, datos[[1]], noms) |> e_color(colors)
       cod <- paste0(
         "e_decompose(seriets, seriedf[[1]], c('", paste(noms, collapse = "','"), "'))",
-        " %>%\n  e_color(c('", paste(colors, collapse = "','"), "'))")
+        " |>\n  e_color(c('", paste(colors, collapse = "','"), "'))")
       isolate(updateData$code[['basico']][['docdesc']] <- cod)
       
       res

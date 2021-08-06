@@ -116,10 +116,10 @@ mod_comparacion_server <- function(input, output, session, updateData, rvmodelo)
         "res <- ts.union(train,test, ", paste(noms, collapse = ","), ")\n",
         "res <- data.frame(res)\n",
         "res$d <- seriedf[[1]]\n",
-        "res %>% e_charts(x = d) %>% e_datazoom() %>% e_tooltip(trigger = 'axis') %>%\n",
+        "res |> e_charts(x = d) |> e_datazoom() |> e_tooltip(trigger = 'axis') |>\n",
         paste(sapply(c("train", "test", noms), function(x) {
           paste0("  e_line(serie = ", x, ", name = '", tr(x), "')")
-        }), collapse = " %>%\n")
+        }), collapse = " |>\n")
       )
       isolate(updateData$code[['comp']][['doccompp']] <- cod)
       
@@ -130,8 +130,8 @@ mod_comparacion_server <- function(input, output, session, updateData, rvmodelo)
         series = series.tiempo
       )
       
-      e_charts() %>% e_list(opts) %>% e_legend() %>% e_datazoom() %>% 
-        e_tooltip(trigger = 'axis') %>% e_show_loading()
+      e_charts() |> e_list(opts) |> e_legend() |> e_datazoom() |> 
+        e_tooltip(trigger = 'axis') |> e_show_loading()
     }, error = function(e) {
       return(NULL)
     })

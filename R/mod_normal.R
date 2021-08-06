@@ -40,7 +40,7 @@ mod_normal_ui <- function(id) {
   
   tagList(
     tabBoxPrmdt(
-      id = "BoxNormal", opciones = opc_hist,
+      id = "BoxNormal", opciones = opc_hist, title = labelInput("sdiff"),
       tabPanel(
         title = labelInput("plotnormal"), value = "tabNormalPlot",
         echarts4rOutput(ns('plot_normal'), height = "70vh")),
@@ -102,7 +102,7 @@ mod_normal_server <- function(input, output, session, updateData) {
     alfa  <- as.numeric(input$slide_inter)
     lg    <- updateData$idioma
     noms  <- tr(c('asimetria', 'normalidad','sigue', 
-                  'pvalue', 'tasim', 'serie'), lg)
+                  'pvalue', 'tasim', 'sdiff'), lg)
     
     tryCatch({
       isolate(updateData$code[['basico']][['docnormaldf']] <- "dfnormal(diff(seriedf[[2]]))")

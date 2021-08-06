@@ -27,7 +27,8 @@ mod_holtwinters_ui <- function(id){
             ), tags$hr(style = "margin-top: 0px;"),
             h4(labelInput('calip')), tags$hr(style = "margin-top: 0px;"),
             numericInput(ns('paso'), labelInput('paso'), 0.1, 0, 1, 0.1),
-            actionButton(ns('calhw'), labelInput('cali'), width = '100%')
+            actionButton(ns('calhw'), labelInput('cali'), width = '100%'), 
+            hr()
           ),
           conditionalPanel(
             condition = "input.BoxHolt == 'tabPlot'", ns = ns,
@@ -197,8 +198,8 @@ mod_holtwinters_server <- function(input, output, session, updateData, rvmodelo)
         )
       )
       
-      e_charts() %>% e_list(opts) %>% e_legend() %>% e_datazoom() %>% 
-        e_tooltip(trigger = 'axis') %>% e_show_loading() %>% e_color(colors)
+      e_charts() |> e_list(opts) |> e_legend() |> e_datazoom() |> 
+        e_tooltip(trigger = 'axis') |> e_show_loading() |> e_color(colors)
     }, error = function(e) {
       showNotification(paste0("ERROR 0000: ", e), type = "error")
       return(NULL)
@@ -215,9 +216,9 @@ mod_holtwinters_server <- function(input, output, session, updateData, rvmodelo)
                 icon("warning"), "red", 6, fill = T),
         infoBox(tr("rmse", lg), rvmodelo$holt$error$RMSE, NULL, 
                 icon("warning"), "yellow", 6, fill = T),
-        infoBox(tr("pfa", lg), rvmodelo$holt$error$PFA, NULL, 
+        infoBox(tr("re", lg), rvmodelo$holt$error$RE, NULL, 
                 icon("level-up"), "green", 6, fill = T),
-        infoBox(tr("ptfa", lg), rvmodelo$holt$error$PTFA, NULL, 
+        infoBox(tr("cor", lg), rvmodelo$holt$error$CORR, NULL, 
                 icon("level-up"), "navy", 6, fill = T)
       )
       isolate(updateData$code[['holt']][['docholte']] <- "error.holt")

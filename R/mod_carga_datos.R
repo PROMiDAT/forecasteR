@@ -96,7 +96,7 @@ mod_carga_datos_ui <- function(id) {
               div(style = 'float: left; color: #428bca;', labelInput('train')),
               div(style = 'float: right; color: #91cc75;', labelInput('test'))),
               5, 95, 80, 5))), hr(),
-            actionButton(ns("tsButton"), labelInput("cargar"), width = "100%"),
+            actionButton(ns("tsButton"), labelInput("generar"), width = "100%"),
           footer = echarts4rOutput(ns('plot_ts'), height = "55vh")
         ))
       )
@@ -494,8 +494,8 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
         )
       )
       
-      e_charts() %>% e_list(opts) %>% e_legend() %>% e_datazoom() %>% 
-        e_tooltip(trigger = 'axis') %>% e_show_loading()
+      e_charts() |> e_list(opts) |> e_legend() |> e_datazoom() |> 
+        e_tooltip(trigger = 'axis') |> e_show_loading()
     }, error = function(e) {
       showNotification(paste0("ERROR 00070: ", e), type = "error")
       return(NULL)

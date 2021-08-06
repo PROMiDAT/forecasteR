@@ -48,10 +48,10 @@ mod_t_c_server <- function(input, output, session, updateData) {
     colors <- c(input$col_ts, input$col_reg, input$col_fou)
     
     tryCatch({
-      res <- e_tc(serie, datos[[1]], noms) %>% e_color(colors)
+      res <- e_tc(serie, datos[[1]], noms) |> e_color(colors)
       cod <- paste0(
         "e_tc(seriets, seriedf[[1]], c('", paste(noms, collapse = "','"), "'))",
-        " %>%\n  e_color(c('", paste(colors, collapse = "','"), "'))")
+        " |>\n  e_color(c('", paste(colors, collapse = "','"), "'))")
       isolate(updateData$code[['basico']][['doctc']] <- cod)
       
       res

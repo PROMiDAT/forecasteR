@@ -48,10 +48,10 @@ mod_periodograma_server <- function(input, output, session, updateData) {
     noms <- tr(c('txtbest', 'txtfreq', 'txtperi'), lg)
     
     tryCatch({
-      res <- e_periods(serie, mejor, noms) %>% e_color(colors)
+      res <- e_periods(serie, mejor, noms) |> e_color(colors)
       cod <- paste0(
         "e_periods(seriets, ", mejor, ", c('", paste(noms, collapse = "','"), "'))",
-        " %>%\n  e_color(c('", paste(colors, collapse = "','"), "'))")
+        " |>\n  e_color(c('", paste(colors, collapse = "','"), "'))")
       isolate(updateData$code[['basico']][['docperi']] <- cod)
       
       res

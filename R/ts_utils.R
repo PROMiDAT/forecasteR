@@ -46,52 +46,21 @@ RMSE <- function(Pred, Real) {
   return(sqrt(MSE(Pred, Real)))
 }
 
-#' Percentage of Failures Up
+#' Relative Error
 #'
 #' @param Pred a ts object (prediction).
 #' @param Real a ts object (real).
 #' @author Diego Jimenez <diego.jimenez@promidat.com>
 #' @return numeric
-#' @export PFA
+#' @export RE
 #' @examples
 #' model <- arima(window(AirPassengers, end = c(1959, 12)))
 #' pred  <- predict(model, 12)
-#' PFA(pred$pred, window(AirPassengers, start = 1960))
+#' RE(pred$pred, window(AirPassengers, start = 1960))
 #' 
-PFA <- function(Pred, Real) {
-  Total <- 0
-  N <- length(Pred)
-  for(i in 1:N) {
-    if(Pred[i] > Real[i])
-      Total <- Total + 1      
-  }
-  return(Total/N)
-}
-
-#' Percentage of Total Failures Up
-#'
-#' @param Pred a ts object (prediction).
-#' @param Real a ts object (real).
-#' @author Diego Jimenez <diego.jimenez@promidat.com>
-#' @return numeric
-#' @export PTFA
-#' @examples
-#' model <- arima(window(AirPassengers, end = c(1959, 12)))
-#' pred  <- predict(model, 12)
-#' PTFA(pred$pred, window(AirPassengers, start = 1960))
-#' 
-PTFA <- function(Pred, Real) {
-  Total <- 0
-  SReal <- 0
-  for(i in 1:length(Pred)) {
-    if(Pred[i] > Real[i]) {
-      Total <- Total + (Pred[i] - Real[i])
-      SReal <- SReal + abs(Real[i])
-    }
-  }
-  if(Total == 0)
-    SReal = 1
-  return(Total/SReal)
+RE <- function(Pred, Real) {
+  res <- sum(abs(Real - Pred)) / sum(abs(Real))
+  return(res)
 }
 
 #' Error table for all predictions
@@ -102,6 +71,7 @@ PTFA <- function(Pred, Real) {
 #' @author Diego Jimenez <diego.jimenez@promidat.com>
 #' @return data.frame
 #' @export tabla.errores
+#' @importFrom stats cor
 #' @examples
 #' model <- arima(window(AirPassengers, end = c(1959, 12)))
 #' pred  <- predict(model, 12)
@@ -112,7 +82,7 @@ tabla.errores <- function(Preds, Real, nombres = NULL) {
   for (pred in Preds) {
     r <- rbind(r, data.frame(
       'MSE' = MSE(pred, Real), 'RMSE' = RMSE(pred, Real),
-      'PFA' = PFA(pred, Real), 'PTFA' = PTFA(pred, Real)
+      'RE'  = RE(pred, Real),  'CORR' = cor(Real, pred)
     )
     )
   }
@@ -140,7 +110,7 @@ grafico.errores <- function (errores) {
   errores <- data.frame(t(errores))
   errores$vars <- row.names(errores)
   
-  res <- errores %>% e_charts(vars)
+  res <- errores |> e_charts(vars)
   
   text_tooltip <- ""
   for (i in 1:nrow(errores)) {
@@ -150,12 +120,12 @@ grafico.errores <- function (errores) {
   }
   
   for (i in 1:(ncol(errores) - 1)) {
-    res <- res %>% 
+    res <- res |> 
       e_radar_(colnames(errores)[i], name = colnames(errores)[i], max = 110,
                areaStyle = list())
   }
   
-  res %>% e_show_loading() %>%
+  res |> e_show_loading() |>
     e_tooltip(
       formatter = htmlwidgets::JS(paste0(
         "function(params) {
@@ -171,11 +141,11 @@ code.plots <- function(noms, colors) {
     "serie           <- data.frame(ts.union(train, test, ", noms[4], "))\n",
     "serie$date      <- seriedf[[1]]\n",
     "colnames(serie) <- c('train', 'test', 'pred', 'date')\n\n",
-    "serie %>% e_charts(x = date) %>%\n", 
-    "  e_line(serie = train, name = '", noms[1], "') %>%\n",
-    "  e_line(serie = test,  name = '", noms[2], "') %>%\n",
-    "  e_line(serie = pred,  name = '", noms[3], "') %>%\n",
-    "  e_datazoom() %>% e_tooltip(trigger = 'axis') %>% e_show_loading() %>%\n",
+    "serie |> e_charts(x = date) |>\n", 
+    "  e_line(serie = train, name = '", noms[1], "') |>\n",
+    "  e_line(serie = test,  name = '", noms[2], "') |>\n",
+    "  e_line(serie = pred,  name = '", noms[3], "') |>\n",
+    "  e_datazoom() |> e_tooltip(trigger = 'axis') |> e_show_loading() |>\n",
     "  e_color(c('", paste(colors, collapse = "','"), "'))"
   )
 }
@@ -188,11 +158,11 @@ code.plotnew <- function(tipo, noms) {
     "names(datos) <- c('s', 'p', 'liminf', 'limsup')\n",
     "datos$fecha <- seq(from = seriedf[[1]][1], by = '", tipo, "', length.out = nrow(datos))\n",
     "datos$fecha <- format(datos$fecha, '%Y-%m-%d %H:%M:%S')\n\n",
-    "datos %>% e_charts(x = fecha) %>%\n",
-    "  e_line(serie = s, name = '", noms[1], "') %>%\n", 
-    "  e_line(serie = p, name = '", noms[2], "') %>%\n",
+    "datos |> e_charts(x = fecha) |>\n",
+    "  e_line(serie = s, name = '", noms[1], "') |>\n", 
+    "  e_line(serie = p, name = '", noms[2], "') |>\n",
     "  e_band(min = liminf, max = limsup,\n",
-    "         name = c('", noms[3], "', '", noms[4], "')) %>%\n",
-    "  e_tooltip(trigger = 'axis') %>% e_datazoom() %>% e_show_loading()"
+    "         name = c('", noms[3], "', '", noms[4], "')) |>\n",
+    "  e_tooltip(trigger = 'axis') |> e_datazoom() |> e_show_loading()"
   )
 }

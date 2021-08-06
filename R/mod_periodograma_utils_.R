@@ -52,8 +52,8 @@ e_periods <- function(x, p = NULL, noms = NULL) {
     series = list(list(type = "line", data = df$spec))
   )
   
-  res <- e_charts() %>% e_list(opts) %>% e_datazoom(type = "slider") %>% 
-    e_x_axis(scale = T) %>% e_y_axis(scale = T) %>% e_show_loading()
+  res <- e_charts() |> e_list(opts) |> e_datazoom(type = "slider") |> 
+    e_x_axis(scale = T) |> e_y_axis(scale = T) |> e_show_loading()
   
   if(!is.null(p)) {
     if(p != 0) {

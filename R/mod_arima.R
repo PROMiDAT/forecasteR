@@ -36,7 +36,8 @@ mod_arima_ui <- function(id){
             tags$hr(style = "margin-top: 0px;"),
             sliderInput(ns('ar'), labelInput('lar'), 1, 10, 2, 1),
             sliderInput(ns('es'), labelInput('les'), 1, 10, 1, 1),
-            actionButton(ns('calarima'), labelInput('cali'), width = '100%')
+            actionButton(ns('calarima'), labelInput('cali'), width = '100%'), 
+            hr()
           ),
           conditionalPanel(
             condition = "input.BoxArima == 'tabPeri'", ns = ns,
@@ -283,8 +284,8 @@ mod_arima_server <- function(input, output, session, updateData, rvmodelo) {
         )
       )
       
-      e_charts() %>% e_list(opts) %>% e_legend() %>% e_datazoom() %>% 
-        e_tooltip(trigger = 'axis') %>% e_show_loading() %>% e_color(colors)
+      e_charts() |> e_list(opts) |> e_legend() |> e_datazoom() |> 
+        e_tooltip(trigger = 'axis') |> e_show_loading() |> e_color(colors)
     }, error = function(e) {
       showNotification(paste0("ERROR 0000: ", e), type = "error")
       return(NULL)
@@ -301,9 +302,9 @@ mod_arima_server <- function(input, output, session, updateData, rvmodelo) {
                 icon("warning"), "red", 6, fill = T),
         infoBox(tr("rmse", lg), rvmodelo$arim$error$RMSE, NULL, 
                 icon("warning"), "yellow", 6, fill = T),
-        infoBox(tr("pfa", lg), rvmodelo$arim$error$PFA, NULL, 
+        infoBox(tr("re", lg), rvmodelo$arim$error$RE, NULL, 
                 icon("level-up"), "green", 6, fill = T),
-        infoBox(tr("ptfa", lg), rvmodelo$arim$error$PTFA, NULL, 
+        infoBox(tr("cor", lg), rvmodelo$arim$error$CORR, NULL, 
                 icon("level-up"), "navy", 6, fill = T)
       )
       isolate(updateData$code[['arim']][['docarime']] <- "error.arim")

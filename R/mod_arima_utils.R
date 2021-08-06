@@ -60,11 +60,11 @@ e_acf <- function(x) {
   res  <- data.frame(Lag = res$lag[, , 1], ACF = res$acf[, , 1])
   lim  <- round(min(c(res$ACF, -clim)) - 0.06, 1)
   
-  res %>% e_charts(Lag) %>% e_bar(ACF, barMaxWidth = 3) %>% 
-    e_mark_line(data = list(yAxis = clim)) %>% 
-    e_mark_line(data = list(yAxis = -clim)) %>% 
-    e_legend(show = F) %>% e_y_axis(min = lim, name = 'ACF') %>%
-    e_x_axis(name = 'Lag') %>% e_show_loading()
+  res |> e_charts(Lag) |> e_bar(ACF, barMaxWidth = 3) |> 
+    e_mark_line(data = list(yAxis = clim)) |> 
+    e_mark_line(data = list(yAxis = -clim)) |> 
+    e_legend(show = F) |> e_y_axis(min = lim, name = 'ACF') |>
+    e_x_axis(name = 'Lag') |> e_show_loading()
 }
 
 #' Best parameters arima model
@@ -84,10 +84,10 @@ e_pacf <- function(x) {
   res  <- data.frame(Lag = res$lag[, , 1], ACF = res$acf[, , 1])
   lim  <- round(min(c(res$ACF, -clim)) - 0.06, 1)
   
-  res %>% e_charts(Lag) %>% e_bar(ACF, barMaxWidth = 3) %>% 
-    e_mark_line(data = list(yAxis = clim)) %>% 
-    e_mark_line(data = list(yAxis = -clim)) %>% 
-    e_legend(show = F) %>% e_y_axis(min = lim, name = 'PACF') %>%
-    e_x_axis(name = 'Lag') %>% e_show_loading()
+  res |> e_charts(Lag) |> e_bar(ACF, barMaxWidth = 3) |> 
+    e_mark_line(data = list(yAxis = clim)) |> 
+    e_mark_line(data = list(yAxis = -clim)) |> 
+    e_legend(show = F) |> e_y_axis(min = lim, name = 'PACF') |>
+    e_x_axis(name = 'Lag') |> e_show_loading()
 }
 

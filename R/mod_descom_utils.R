@@ -24,9 +24,9 @@ e_decompose <- function(serie, f = NULL, noms = NULL) {
   
   opts <- list(
     xAxis = list(
-      list(data = f, gridIndex = 0),
-      list(data = f, gridIndex = 1),
-      list(data = f, gridIndex = 2),
+      list(data = f, gridIndex = 0, show = F),
+      list(data = f, gridIndex = 1, show = F),
+      list(data = f, gridIndex = 2, show = F),
       list(data = f, gridIndex = 3)
     ),
     yAxis = list(
@@ -51,7 +51,14 @@ e_decompose <- function(serie, f = NULL, noms = NULL) {
       list(type = "line", data = d$r, xAxisIndex = 3, yAxisIndex = 3)
     ),
     tooltip = list(
-      trigger = 'axis'
+      trigger = 'axis',
+      formatter = htmlwidgets::JS(paste0(
+        "function(params) {\n",
+        "  return(`${params[0].name}<br>${params[0].marker} ", noms[1], ": ${params[0].value}<br>",
+        "${params[1].marker} ", noms[2], ": ${params[1].value}<br>",
+        "${params[2].marker} ", noms[3], ": ${params[2].value}<br>",
+        "${params[3].marker} ", noms[4], ": ${params[3].value}`)\n", 
+        "}"))
     ),
     dataZoom = list(
       xAxisIndex = c(0, 1, 2, 3)
@@ -61,6 +68,6 @@ e_decompose <- function(serie, f = NULL, noms = NULL) {
     )
   )
   
-  res <- e_charts() %>% e_list(opts) %>% e_show_loading()
+  res <- e_charts() |> e_list(opts) |> e_show_loading()
   return(res)
 }

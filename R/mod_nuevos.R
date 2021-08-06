@@ -497,8 +497,8 @@ mod_nuevos_server <- function(input, output, session, updateData) {
         series = list(list(type = "line", data = serie$valor))
       )
       
-      e_charts() %>% e_list(opts) %>% e_datazoom() %>% 
-        e_tooltip(trigger = 'axis') %>% e_show_loading()
+      e_charts() |> e_list(opts) |> e_datazoom() |> 
+        e_tooltip(trigger = 'axis') |> e_show_loading()
     }, error = function(e) {
       showNotification(paste0("ERROR 00070: ", e), type = "error")
       return(NULL)
@@ -651,8 +651,8 @@ mod_nuevos_server <- function(input, output, session, updateData) {
         )
       )
       
-      e_charts() %>% e_list(opts) %>% e_datazoom() %>% e_legend() %>%
-        e_tooltip(trigger = 'axis') %>% e_show_loading()
+      e_charts() |> e_list(opts) |> e_datazoom() |> e_legend() |>
+        e_tooltip(trigger = 'axis') |> e_show_loading()
     }, error = function(e) {
       showNotification(paste0("ERROR 00050: ", e), type = "error")
       return(NULL)

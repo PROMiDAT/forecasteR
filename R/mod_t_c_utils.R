@@ -27,9 +27,9 @@ e_tc <- function(x, d = NULL, noms = c("Time Series", "Trend", "Cyclicality")) {
   
   df <- data.frame(x = d, w = lserie, y = regresion, z = fourier)
   
-  df %>% e_charts(x) %>% e_line(w, name = noms[1]) %>% 
-    e_line(y, name = noms[2], showSymbol = F) %>% 
-    e_line(z, name = noms[3], showSymbol = F) %>%
-    e_datazoom(type = "slider") %>% e_x_axis(scale = T) %>%
-    e_y_axis(scale = T) %>% e_tooltip() %>% e_show_loading()
+  df |> e_charts(x) |> e_line(w, name = noms[1]) |> 
+    e_line(y, name = noms[2], showSymbol = F) |> 
+    e_line(z, name = noms[3], showSymbol = F) |>
+    e_datazoom(type = "slider") |> e_x_axis(scale = T) |>
+    e_y_axis(scale = T) |> e_tooltip() |> e_show_loading()
 }
