@@ -441,18 +441,20 @@ mod_nuevos_server <- function(input, output, session, updateData) {
         fechas <- list(12)
         names(fechas) <- c(tr("anual", lg))
       } else if(tipo == "days") {
-        fechas <- list(365)
-        names(fechas) <- c(tr("anual", lg))
+        fechas <- list(365, 7)
+        names(fechas) <- c(tr("anual", lg), tr("semanal", lg))
+      } else if(tipo == "workdays") {
+        fechas <- list(260, 5)
+        names(fechas) <- c(tr("anual", lg), tr("semanal", lg))
       } else if(tipo == "hours") {
         fechas <- list(24, 8760)
         names(fechas) <- c(tr("dia", lg), tr("anual", lg))
       } else if(tipo == "min") {
         fechas <- list(60, 1440, 525600)
-        names(fechas) <- c(tr("hora", lg), tr("dia", lg), tr("anual", lg))
+        names(fechas) <- tr(c('hora', 'dia', 'anual'), lg)
       } else if(tipo == "sec") {
         fechas <- list(60, 3600, 86400, 31536000)
-        names(fechas) <- c(tr("minuto", lg), tr("hora", lg), tr("dia", lg), 
-                           tr("anual", lg))
+        names(fechas) <- tr(c('minuto', 'hora', 'dia', 'anual'), lg)
       }
       
       updateSelectInput("sel_n_patron", session = session, choices = fechas)

@@ -80,6 +80,9 @@ naiv;Ingenuo;Naive
 snai;Estacional Ingenuo;Seasonal Naive
 drif;Desvío;Drift
 reds;Redes Neuronales;Neural Networks
+auto;Automático;Automatic
+mano;Manual;Manual
+brut;Fuerza bruta;Brute force
 holt;Holt-Winters;Holt-Winters
 arim;Arima;Arima
 text_m;Modelo;Model

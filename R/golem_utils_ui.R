@@ -393,15 +393,15 @@ tabBoxPrmdt <- function (..., id = NULL, title = NULL, opciones = NULL) {
       content$children[[1]], tags$li(class = "header pull-right", title))
   }
   if (!is.null(opciones)) {
-    pos <- length(content$children[[2]]$children[[1]]) + 1
-    content$children[[2]]$children[[1]][[pos]] <- opciones
+    pos <- length(content$children[[2]]$children) + 1
+    content$children[[2]]$children[[pos]] <- opciones
   }
   
   content
 }
 
 tabsOptions <- function(
-  botones = list(icon("gear"), icon("code")), widths = c(50, 100),
+  botones = list(icon("cog"), icon("code")), widths = c(50, 100),
   heights = c(100, 50), tabs.content = list("", "")
 ) {
   res <- ""
@@ -429,4 +429,29 @@ tabsOptions <- function(
       width = "100%", HTML(codeButtons))
   )
   return(tags$div(HTML(res)))
+}
+
+tabVerticalBox <- function (..., id = NULL, selected = NULL, width = 6, height = NULL, side = c("left", "right")) {
+  side <- match.arg(side)
+  content <- shiny::tabsetPanel(..., id = id, selected = selected)
+  content$attribs$class <- "nav-tabs-vertical"
+  content$children[[1]]$attribs$class <- "nav vertical-tabs shiny-tab-input"
+  if (!is.null(height)) {
+    content$children[[1]] <- tagAppendAttributes(
+      content$children[[1]], style = paste0("height: ", validateCssUnit(height)))
+    content$children[[2]] <- tagAppendAttributes(
+      content$children[[2]], style = paste0("height: ", validateCssUnit(height)))
+  }
+  if (side == "right") {
+    content$children[[1]] <- tagAppendAttributes(content$children[[1]], 
+                                                 class = "pull-right")
+  }
+  
+  div(class = paste0("col-sm-", width), content)
+}
+
+numericDisabled<- function (inputId, label, value, min = NA, max = NA, step = NA, width = NULL) {
+  content <- numericInput(inputId, label, value, min, max, step, width)
+  content$children[[2]]$attribs[["disabled"]] <- "disabled"
+  return(content)
 }

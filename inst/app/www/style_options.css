@@ -10,15 +10,68 @@
 }
 
 .nav-tabs-custom > .tab-content {
-    background: #fff;
-    padding: 0 0 0 0;
-    border-bottom-right-radius: 3px;
-    border-bottom-left-radius: 3px;
+  background: #fff;
+  padding: 0 0 0 0;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
 }
 
 .tab-content > .active {
-    display: block;
-    padding: 10px 10px 10px 10px;
+  display: block;
+  padding: 10px 10px 10px 10px;
+}
+
+.nav-tabs-vertical > .vertical-tabs {
+  float: left;
+  height: 200px;
+  border: 1px solid #444;
+}
+
+.nav-tabs-vertical > .tab-content {
+  height: 200px;
+  background-color: #444;
+}
+
+.nav-tabs-vertical > .vertical-tabs > li {
+  float: initial;
+}
+
+.nav-tabs-vertical > .vertical-tabs > li > a {
+  margin-right: 0px;
+  border-radius: 0px;
+  color: white;
+}
+
+.nav-tabs-vertical > .vertical-tabs > li > a:hover {
+  color: white;
+  border: 0px;
+  margin-right: 0px;
+  border-radius: 0px;
+  background-color: #555;
+}
+
+.nav-tabs-vertical > .vertical-tabs > li > a:active {
+  color: white;
+  margin-right: 0px;
+  border-radius: 0px;
+  border: 0px;
+  background-color: #444;
+}
+
+.nav-tabs-vertical > .vertical-tabs > li > a:focus {
+  color: white;
+  margin-right: 0px;
+  border-radius: 0px;
+  border: 0px;
+  background-color: #444;
+}
+
+.nav-tabs-vertical > .vertical-tabs > .active {
+  color: white;
+  margin-right: 0px;
+  border-radius: 0px;
+  border: 0px;
+  background-color: #444;
 }
 
 .box-option {

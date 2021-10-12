@@ -30,7 +30,7 @@ app_ui <- function(request) {
             </a>
           </span>',
           '<img src= "img/logo_small.png" height = 50%, width = "120%">'
-        ))
+        )), controlbarIcon = icon("cogs")
       ),
       
       dashboardSidebar(
@@ -38,26 +38,26 @@ app_ui <- function(request) {
           id = "principal",
           tags$div(style = "padding-top:10px;"),
           menuItem(labelInput("data"), tabName = "cargar", 
-                   icon = icon("dashboard")),
+                   icon = icon("database")),
           menuItem(
             labelInput("basico"), tabName = "parte1",
             icon = icon("th-list"),
-            menuSubItem(labelInput("norm"), "norm", icon = icon("area-chart")),
-            menuSubItem(labelInput("t_c"),  "t_c",  icon = icon("line-chart")),
+            menuSubItem(labelInput("norm"), "norm", icon = icon("chart-area")),
+            menuSubItem(labelInput("t_c"),  "t_c",  icon = icon("chart-line")),
             menuSubItem(labelInput("desc"), "desc", icon = icon("puzzle-piece")),
-            menuSubItem(labelInput("peri"), "peri", icon = icon("sliders"))
+            menuSubItem(labelInput("peri"), "peri", icon = icon("sliders-h"))
           ),
           menuItem(
             labelInput("apre"), tabName = "parte2",
             icon = icon("th-list"),
             menuSubItem(labelInput("prom"), "prom", icon = icon("adjust")),
-            menuSubItem(labelInput("naiv"), "naiv", icon = icon("long-arrow-right")),
-            menuSubItem(labelInput("snai"), "snai", icon = icon("area-chart")),
-            menuSubItem(labelInput("drif"), "drif", icon = icon("line-chart")),
+            menuSubItem(labelInput("naiv"), "naiv", icon = icon("long-arrow-alt-right")),
+            menuSubItem(labelInput("snai"), "snai", icon = icon("chart-area")),
+            menuSubItem(labelInput("drif"), "drif", icon = icon("chart-line")),
             menuSubItem(labelInput("desc"), "deco", icon = icon("puzzle-piece")),
             menuSubItem(labelInput("reds"), "reds", icon = icon("brain")),
             menuSubItem("Holt-Winters", "h_w", icon = icon("industry")),
-            menuSubItem("ARIMA", "arim", icon = icon("bar-chart"))
+            menuSubItem("ARIMA", "arim", icon = icon("chart-bar"))
           ),
           menuItem(labelInput("comp"), tabName = "comp", icon = icon("eye")),
           menuItem(labelInput("news"), tabName = "news", icon = icon("magic")),

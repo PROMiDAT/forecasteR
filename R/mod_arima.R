@@ -16,28 +16,61 @@ mod_arima_ui <- function(id){
   opc_arima <- div(
     conditionalPanel(
       condition = "input.BoxArima == 'tabText' | input.BoxArima == 'tabPlot' | input.BoxArima == 'tabPeri'", ns = ns,
-      tabsOptions(list(icon("gear")), 100, 70, tabs.content = list(
+      tabsOptions(list(icon("cog")), 100, 70, tabs.content = list(
         list(
           conditionalPanel(
             condition = "input.BoxArima == 'tabText'", ns = ns,
             options.run(ns("run_arima")), tags$hr(style = "margin-top: 0px;"),
-            fluidRow(
-              col_4(numericInput(ns('p'), 'p', 0, 0, step = 0.5)),
-              col_4(numericInput(ns('d'), 'd', 0, 0, step = 0.5)),
-              col_4(numericInput(ns('q'), 'q', 0, 0, step = 0.5))
-            ),
-            fluidRow(
-              col_4(numericInput(ns('P'), 'P', 0, 0, step = 0.5)),
-              col_4(numericInput(ns('D'), 'D', 0, 0, step = 0.5)),
-              col_4(numericInput(ns('Q'), 'Q', 0, 0, step = 0.5))
-            ),
-            numericInput(ns('periodo'), labelInput('selperi'), 0, 0, step = 0.5),
-            tags$hr(style = "margin-top: 0px;"), h4(labelInput('calip')),
-            tags$hr(style = "margin-top: 0px;"),
-            sliderInput(ns('ar'), labelInput('lar'), 1, 10, 2, 1),
-            sliderInput(ns('es'), labelInput('les'), 1, 10, 1, 1),
-            actionButton(ns('calarima'), labelInput('cali'), width = '100%'), 
-            hr()
+            tabVerticalBox(
+              id = ns("arimaOptMod"), width = NULL, height = "300px",
+              tabPanel(
+                title = labelInput("auto"), value = "tabAuto",
+                col_4(numericDisabled(ns('auto_p'), 'p', 0)),
+                col_4(numericDisabled(ns('auto_d'), 'd', 0)),
+                col_4(numericDisabled(ns('auto_q'), 'q', 0)),
+                col_4(numericDisabled(ns('auto_P'), 'P', 0)),
+                col_4(numericDisabled(ns('auto_D'), 'D', 0)),
+                col_4(numericDisabled(ns('auto_Q'), 'Q', 0)),
+                tags$div(
+                  style = "margin-left: 15px; margin-right: 15px",
+                  numericDisabled(ns('auto_periodo'), labelInput('selperi'), 0)
+                )
+              ),
+              tabPanel(
+                title = labelInput("mano"), value = "tabMano",
+                col_4(numericInput(ns('mano_p'), 'p', 0, 0, step = 0.5)),
+                col_4(numericInput(ns('mano_d'), 'd', 0, 0, step = 0.5)),
+                col_4(numericInput(ns('mano_q'), 'q', 0, 0, step = 0.5)),
+                col_4(numericInput(ns('mano_P'), 'P', 0, 0, step = 0.5)),
+                col_4(numericInput(ns('mano_D'), 'D', 0, 0, step = 0.5)),
+                col_4(numericInput(ns('mano_Q'), 'Q', 0, 0, step = 0.5)),
+                tags$div(
+                  style = "margin-left: 15px; margin-right: 15px",
+                  numericInput(ns('mano_periodo'), labelInput('selperi'), 0, 0, step = 0.5)
+                )
+              ),
+              tabPanel(
+                title = labelInput("brut"), value = "tabBrut",
+                div(
+                  col_6(
+                    sliderInput(ns('ar'), labelInput('lar'), 1, 10, 2, 1),
+                    sliderInput(ns('es'), labelInput('les'), 1, 10, 1, 1)
+                  ),
+                  col_6(
+                    col_4(numericDisabled(ns('brut_p'), 'p', 0)),
+                    col_4(numericDisabled(ns('brut_d'), 'd', 0)),
+                    col_4(numericDisabled(ns('brut_q'), 'q', 0)),
+                    col_4(numericDisabled(ns('brut_P'), 'P', 0)),
+                    col_4(numericDisabled(ns('brut_D'), 'D', 0)),
+                    col_4(numericDisabled(ns('brut_Q'), 'Q', 0)),
+                    tags$div(
+                      style = "margin-left: 15px; margin-right: 15px",
+                      numericInput(ns('brut_periodo'), labelInput('selperi'), 0, 0, step = 0.5)
+                    )
+                  )
+                )
+              )
+            )
           ),
           conditionalPanel(
             condition = "input.BoxArima == 'tabPeri'", ns = ns,
@@ -111,8 +144,6 @@ mod_arima_ui <- function(id){
 mod_arima_server <- function(input, output, session, updateData, rvmodelo) {
   ns <- session$ns
   
-  v <- rv(checkarima = 0)
-  
   observeEvent(input$BoxArima, {
     if(input$BoxArima == "tabText") {
       shinyjs::show('run_arima')
@@ -127,41 +158,40 @@ mod_arima_server <- function(input, output, session, updateData, rvmodelo) {
   
   output$text_arima <- renderPrint({
     input$run_arima
-    calarima <- input$calarima
+    tabvalue <- isolate(input$arimaOptMod)
     train <- updateData$train
     test  <- updateData$test
     
     tryCatch({
-      if(is.null(isolate(rvmodelo$arim$model))) {
+      if(tabvalue == "tabAuto") {
         modelo <- auto.arima(train)
-        updateNumericInput(session, "p", value = modelo$arma[1])
-        updateNumericInput(session, "d", value = modelo$arma[6])
-        updateNumericInput(session, "q", value = modelo$arma[2])
-        updateNumericInput(session, "P", value = modelo$arma[3])
-        updateNumericInput(session, "D", value = modelo$arma[7])
-        updateNumericInput(session, "Q", value = modelo$arma[4])
-        updateNumericInput(session, "periodo", value = modelo$arma[5])
-      } else if(isolate(v$checkarima) != calarima) {
-        isolate(v$checkarima <- calarima)
-        ar     <- isolate(input$ar)
-        es     <- isolate(input$es)
-        modelo <- calibrar.arima(train, test, isolate(input$periodo), 0:ar, 0:es)
-        updateNumericInput(session, "p", value = modelo$arma[1])
-        updateNumericInput(session, "d", value = modelo$arma[6])
-        updateNumericInput(session, "q", value = modelo$arma[2])
-        updateNumericInput(session, "P", value = modelo$arma[3])
-        updateNumericInput(session, "D", value = modelo$arma[7])
-        updateNumericInput(session, "Q", value = modelo$arma[4])
-      } else {
-        p <- isolate(input$p)
-        d <- isolate(input$d)
-        q <- isolate(input$q)
-        P <- isolate(input$P)
-        D <- isolate(input$D)
-        Q <- isolate(input$Q)
-        periodo <- isolate(input$periodo)
+        updateNumericInput(session, "auto_p", value = modelo$arma[1])
+        updateNumericInput(session, "auto_d", value = modelo$arma[6])
+        updateNumericInput(session, "auto_q", value = modelo$arma[2])
+        updateNumericInput(session, "auto_P", value = modelo$arma[3])
+        updateNumericInput(session, "auto_D", value = modelo$arma[7])
+        updateNumericInput(session, "auto_Q", value = modelo$arma[4])
+        updateNumericInput(session, "auto_periodo", value = modelo$arma[5])
+      } else if (tabvalue == "tabMano") {
+        p <- isolate(input$mano_p)
+        d <- isolate(input$mano_d)
+        q <- isolate(input$mano_q)
+        P <- isolate(input$mano_P)
+        D <- isolate(input$mano_D)
+        Q <- isolate(input$mano_Q)
+        periodo <- isolate(input$mano_periodo)
         modelo  <- arima(train, order = c(p, d, q), 
                          seasonal = list(order = c(P, D, Q), period = periodo))
+      } else {
+        ar     <- isolate(input$ar)
+        es     <- isolate(input$es)
+        modelo <- calibrar.arima(train, test, isolate(input$brut_periodo), 0:ar, 0:es)
+        updateNumericInput(session, "brut_p", value = modelo$arma[1])
+        updateNumericInput(session, "brut_d", value = modelo$arma[6])
+        updateNumericInput(session, "brut_q", value = modelo$arma[2])
+        updateNumericInput(session, "brut_P", value = modelo$arma[3])
+        updateNumericInput(session, "brut_D", value = modelo$arma[7])
+        updateNumericInput(session, "brut_Q", value = modelo$arma[4])
       }
       
       pred   <- forecast(modelo, h = length(test))$mean

@@ -15,15 +15,33 @@ e_tc <- function(x, d = NULL, noms = c("Time Series", "Trend", "Cyclicality")) {
   if(is.null(d)) {
     d <- 1:(length(x))
   }
-  lserie <- log(x)
   
   t     <- 1:(length(x))
   t2    <- t^2
   sin.t <- sin(2 * pi * t)
   cos.t <- cos(2 * pi * t)
   
-  regresion <- lm(lserie ~ t + t2)$fit
-  fourier   <- lm(lserie ~ t + t2 + sin.t + cos.t)$fit
+  if(min(x) < 0) {
+    aux    <- abs(min(x)) + 1
+    x      <- x + aux
+    lserie <- log(x)
+    
+    regresion <- lm(lserie ~ t + t2)$fit
+    fourier   <- lm(lserie ~ t + t2 + sin.t + cos.t)$fit
+    
+    lserie    <- lserie - log(aux)
+    regresion <- regresion - log(aux)
+    fourier   <- fourier - log(aux)
+  } else {
+    lserie <- log(x)
+    
+    regresion <- lm(lserie ~ t + t2)$fit
+    fourier   <- lm(lserie ~ t + t2 + sin.t + cos.t)$fit
+    
+    lserie    <- lserie
+    regresion <- regresion
+    fourier   <- fourier
+  }
   
   df <- data.frame(x = d, w = lserie, y = regresion, z = fourier)
   

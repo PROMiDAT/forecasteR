@@ -15,20 +15,36 @@ mod_holtwinters_ui <- function(id){
   opc_holt <- div(
     conditionalPanel(
       condition = "input.BoxHolt == 'tabText' | input.BoxHolt == 'tabPlot'", ns = ns,
-      tabsOptions(list(icon("gear")), 100, 70, tabs.content = list(
+      tabsOptions(list(icon("cog")), 100, 70, tabs.content = list(
         list(
           conditionalPanel(
             condition = "input.BoxHolt == 'tabText'", ns = ns,
             options.run(ns("run_holt")), tags$hr(style = "margin-top: 0px;"),
-            fluidRow(
-              col_4(numericInput(ns('alpha'), 'alpha', 1, 0, 1, 0.1)),
-              col_4(numericInput(ns('beta'),  'beta',  0, 0, 1, 0.1)),
-              col_4(numericInput(ns('gamma'), 'gamma', 0, 0, 1, 0.1))
-            ), tags$hr(style = "margin-top: 0px;"),
-            h4(labelInput('calip')), tags$hr(style = "margin-top: 0px;"),
-            numericInput(ns('paso'), labelInput('paso'), 0.1, 0, 1, 0.1),
-            actionButton(ns('calhw'), labelInput('cali'), width = '100%'), 
-            hr()
+            tabVerticalBox(
+              id = ns("hwOptMod"), width = NULL,
+              tabPanel(
+                title = labelInput("auto"), value = "tabAuto",
+                col_4(numericDisabled(ns('auto_alpha'), 'alpha', 1)),
+                col_4(numericDisabled(ns('auto_beta'),  'beta',  0)),
+                col_4(numericDisabled(ns('auto_gamma'), 'gamma', 0))
+              ),
+              tabPanel(
+                title = labelInput("mano"), value = "tabMano",
+                col_4(numericInput(ns('mano_alpha'), 'alpha', 1, 0, 1, 0.1)),
+                col_4(numericInput(ns('mano_beta'),  'beta',  0, 0, 1, 0.1)),
+                col_4(numericInput(ns('mano_gamma'), 'gamma', 0, 0, 1, 0.1))
+              ),
+              tabPanel(
+                title = labelInput("brut"), value = "tabBrut",
+                col_4(numericDisabled(ns('brut_alpha'), 'alpha', 1)),
+                col_4(numericDisabled(ns('brut_beta'),  'beta',  0)),
+                col_4(numericDisabled(ns('brut_gamma'), 'gamma', 0)),
+                tags$div(
+                  style = "margin-left: 15px; margin-right: 15px",
+                  numericInput(ns('paso'), labelInput('paso'), 0.1, 0, 1, 0.1)
+                )
+              )
+            )
           ),
           conditionalPanel(
             condition = "input.BoxHolt == 'tabPlot'", ns = ns,
@@ -88,8 +104,6 @@ mod_holtwinters_ui <- function(id){
 mod_holtwinters_server <- function(input, output, session, updateData, rvmodelo) {
   ns <- session$ns
   
-  v <- rv(checkhw = 0)
-  
   observeEvent(input$BoxHolt, {
     if(input$BoxHolt == "tabText") {
       shinyjs::show('run_holt')
@@ -104,27 +118,26 @@ mod_holtwinters_server <- function(input, output, session, updateData, rvmodelo)
   
   output$text_holt <- renderPrint({
     input$run_holt
-    calhw <- input$calhw
+    tabvalue <- isolate(input$hwOptMod)
     train <- updateData$train
     test  <- updateData$test
     
     tryCatch({
-      if(is.null(isolate(rvmodelo$holt$model))) {
+      if(tabvalue == "tabAuto") {
         modelo <- HoltWinters(train)
-        updateNumericInput(session, "alpha", value = round(modelo$alpha[[1]], 7))
-        updateNumericInput(session, "beta",  value = round(modelo$beta[[1]],  7))
-        updateNumericInput(session, "gamma", value = round(modelo$gamma[[1]], 7))
-      } else if(isolate(v$checkhw) != calhw) {
-        isolate(v$checkhw <- calhw)
-        modelo <- calibrar.HW(train, test, isolate(input$paso))
-        updateNumericInput(session, "alpha", value = round(modelo$alpha[[1]], 7))
-        updateNumericInput(session, "beta",  value = round(modelo$beta[[1]],  7))
-        updateNumericInput(session, "gamma", value = round(modelo$gamma[[1]], 7))
-      } else {
-        alpha  <- isolate(input$alpha)
-        beta   <- isolate(input$beta)
-        gamma  <- isolate(input$gamma)
+        updateNumericInput(session, "auto_alpha", value = round(modelo$alpha[[1]], 7))
+        updateNumericInput(session, "auto_beta",  value = round(modelo$beta[[1]],  7))
+        updateNumericInput(session, "auto_gamma", value = round(modelo$gamma[[1]], 7))
+      } else if (tabvalue == "tabMano") {
+        alpha  <- isolate(input$mano_alpha)
+        beta   <- isolate(input$mano_beta)
+        gamma  <- isolate(input$mano_gamma)
         modelo <- HoltWinters(train, alpha, beta, gamma)
+      } else {
+        modelo <- calibrar.HW(train, test, isolate(input$paso))
+        updateNumericInput(session, "brut_alpha", value = round(modelo$alpha[[1]], 7))
+        updateNumericInput(session, "brut_beta",  value = round(modelo$beta[[1]],  7))
+        updateNumericInput(session, "brut_gamma", value = round(modelo$gamma[[1]], 7))
       }
       
       pred <- forecast(modelo, h = length(test))$mean
@@ -141,7 +154,7 @@ mod_holtwinters_server <- function(input, output, session, updateData, rvmodelo)
       
       modelo
     }, error = function(e) {
-      showNotification(paste0("ERROR 0000: ", e), type = "error")
+      showNotification(paste0("ERROR HW100: ", e), type = "error")
       return(NULL)
     })
   })
@@ -168,7 +181,7 @@ mod_holtwinters_server <- function(input, output, session, updateData, rvmodelo)
       DT::datatable(res, selection = 'none', editable = F, rownames = F,
                     options = list(dom = 'frtp', scrollY = "50vh"))
     }, error = function(e) {
-      showNotification(paste0("ERROR 0000: ", e), type = "error")
+      showNotification(paste0("ERROR HW200: ", e), type = "error")
       return(NULL)
     })
   })
@@ -201,7 +214,7 @@ mod_holtwinters_server <- function(input, output, session, updateData, rvmodelo)
       e_charts() |> e_list(opts) |> e_legend() |> e_datazoom() |> 
         e_tooltip(trigger = 'axis') |> e_show_loading() |> e_color(colors)
     }, error = function(e) {
-      showNotification(paste0("ERROR 0000: ", e), type = "error")
+      showNotification(paste0("ERROR HW300: ", e), type = "error")
       return(NULL)
     })
   })
@@ -225,7 +238,7 @@ mod_holtwinters_server <- function(input, output, session, updateData, rvmodelo)
       
       res
     }, error = function(e) {
-      showNotification(paste0("ERROR 0000: ", e), type = "error")
+      showNotification(paste0("ERROR HW400: ", e), type = "error")
       return(NULL)
     })
   })
