@@ -88,7 +88,7 @@ cambiar.labels <- function() {
          'colseas', 'colresi', 'colperi', 'colbest', 'selbest', 'coltrain',
          'coltest', 'colpred', 'tamred', 'selperi', 'corre', 'cali', 'calip',
          'paso', 'lar', 'les', 'news', 'txterror', 'n_pred', 'code', 'generar',
-         'sdiff', 'auto', 'mano', 'brut')
+         'sdiff', 'auto', 'mano', 'brut', 'selmodel')
   
   return(x)
 }

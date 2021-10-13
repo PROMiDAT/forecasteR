@@ -28,6 +28,7 @@ hora;Por hora;Hourly
 minuto;Por minuto;By minute
 segundo;Por segundo;By second
 selpatron;Seleccione el Patrón-Estacional:;Select Seasonal-Pattern:
+selmodel;Seleccione el modelo:;Select model:
 fecha;Fecha;Date
 valor;Valor;Value
 numerico;Númerico;Numeric

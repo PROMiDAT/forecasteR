@@ -104,7 +104,7 @@ mod_nuevos_ui <- function(id){
           title = labelInput("cargar"), status = "primary", 
           width = 12, solidHeader = T, collapsible = T,
           fluidRow(
-            col_4(selectInput(ns("sel_model"), labelInput('selpatron'), "")),
+            col_4(selectInput(ns("sel_model"), labelInput('selmodel'), "")),
             col_8(
               numericInput(ns('n_pred'), labelInput('n_pred'), 10, 1, step = 5),
               conditionalPanel(

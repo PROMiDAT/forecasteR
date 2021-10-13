@@ -58,6 +58,7 @@ e_acf <- function(x) {
   res  <- acf(x, plot = F)
   clim <- qnorm((1 + 0.95)/2)/sqrt(res$n.used)
   res  <- data.frame(Lag = res$lag[, , 1], ACF = res$acf[, , 1])
+  res$Lag <- res$Lag * frequency(x)
   lim  <- round(min(c(res$ACF, -clim)) - 0.06, 1)
   
   res |> e_charts(Lag) |> e_bar(ACF, barMaxWidth = 3) |> 
@@ -82,6 +83,7 @@ e_pacf <- function(x) {
   res  <- pacf(x, plot = F)
   clim <- qnorm((1 + 0.95)/2)/sqrt(res$n.used)
   res  <- data.frame(Lag = res$lag[, , 1], ACF = res$acf[, , 1])
+  res$Lag <- res$Lag * frequency(x)
   lim  <- round(min(c(res$ACF, -clim)) - 0.06, 1)
   
   res |> e_charts(Lag) |> e_bar(ACF, barMaxWidth = 3) |> 
