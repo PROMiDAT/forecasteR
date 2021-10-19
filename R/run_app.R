@@ -7,6 +7,8 @@
 #' @importFrom golem with_golem_options
 run_app <- function(...) {
   Sys.setenv("LANGUAGE" = "ES")
+  old <- options()
+  on.exit(options(old))
   if(toupper(.Platform$OS.type) != "WINDOWS") {
     options(encoding = "utf8")
   } else {
