@@ -382,7 +382,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
           fechas = fechas[[1]], valor = datos[[input$sel_n_valor]])
         updateNew$ts_type <- fechas[[2]]
         
-        cod <- code.tsdf(input$sel_valor, cold = input$sel_n_fecha)
+        cod <- code.tsdf(input$sel_n_valor, cold = input$sel_n_fecha)
         updateData$codenew <- list(doccarga = updateData$codenew$doccarga,
                                    doctsdf = cod)
       }
@@ -495,7 +495,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
       opts <- list(
         xAxis = list(
           type = "category", data = format(serie$fechas, "%Y-%m-%d %H:%M:%S")),
-        yAxis = list(show = TRUE),
+        yAxis = list(show = TRUE, scale = T),
         series = list(list(type = "line", data = serie$valor))
       )
       
@@ -575,7 +575,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     }
     
     isolate(updateNew$modelo <- modelo)
-    if(sel_model == 'arim') {
+    if(sel_model %in% c('arim', 'desc')) {
       isolate(updateNew$pred <- forecast(modelo, h = n_pred))
     } else {
       isolate(updateNew$pred <- forecast(modelo, h = n_pred, PI = T))
@@ -629,7 +629,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     ts_type <- isolate(updateNew$ts_type)
     datos$fecha <- seq(from = seriedf[[1]][1], by = ts_type, length.out = nrow(datos))
     datos$fecha <- format(datos$fecha, "%Y-%m-%d %H:%M:%S")
-    noms <- tr(c("serie", "table_m", "linf", "lsup"), updateData$idioma)
+    noms <- tr(c("serie", "table_m"), updateData$idioma)
     
     tryCatch({
       cod <- code.plotnew(ts_type, noms)
@@ -640,21 +640,14 @@ mod_nuevos_server <- function(input, output, session, updateData) {
         docmodel = updateData$codenew$docmodel,
         docpred  = cod))
       
-      opts <- list(
-        xAxis = list(type = "category", data = datos$fecha),
-        yAxis = list(show = TRUE),
-        series = list(
-          list(type = "line", data = datos$s, name = noms[1]),
-          list(type = "line", data = datos$p, name = noms[2]),
-          list(type = "line", data = datos$liminf, name = noms[3],
-               stack = "confidence-band", areaStyle = list(color = "rgba(0,0,0,0)")),
-          list(type = "line", data = datos$limsup, name = noms[4],
-               stack = "confidence-band", areaStyle = list())
-        )
-      )
+      aux <- datos |> e_charts(fecha) |> e_line(s, name = noms[1]) |> 
+        e_line(p, name = noms[2]) |> e_datazoom() |> e_legend() |> 
+        e_band2(liminf, limsup, color = "lightblue", itemStyle = list(borderWidth = 0)) |> 
+        e_y_axis(scale = TRUE) |> e_tooltip(trigger = 'axis') |> e_show_loading()
       
-      e_charts() |> e_list(opts) |> e_datazoom() |> e_legend() |>
-        e_tooltip(trigger = 'axis') |> e_show_loading()
+      aux$x$opts$legend$data[[3]] <- NULL
+      aux$x$opts$series[[3]]$tooltip <- list(show = F)
+      return(aux)
     }, error = function(e) {
       showNotification(paste0("ERROR 00050: ", e), type = "error")
       return(NULL)

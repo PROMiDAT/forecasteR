@@ -487,14 +487,14 @@ mod_carga_datos_server <- function(input, output, session, updateData, rvmodelo)
       opts <- list(
         xAxis = list(
           type = "category", data = format(serie$date, "%Y-%m-%d %H:%M:%S")),
-        yAxis = list(show = TRUE),
+        yAxis = list(show = TRUE, scale = T),
         series = list(
           list(type = "line", data = serie$train, name = names[1]),
           list(type = "line", data = serie$test,  name = names[2])
         )
       )
       
-      e_charts() |> e_list(opts) |> e_legend() |> e_datazoom() |> 
+      e_charts() |> e_list(opts) |> e_legend() |> e_datazoom() |>
         e_tooltip(trigger = 'axis') |> e_show_loading()
     }, error = function(e) {
       showNotification(paste0("ERROR 00070: ", e), type = "error")

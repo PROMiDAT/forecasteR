@@ -166,7 +166,7 @@ code.carga <- function(ruta = NULL, separador = ";", sep.decimal = ",",
 
 code.tsdf <- function(col, ini = NULL, fin = NULL, tipo = NULL, cold = NULL) {
   agregar <- ifelse(
-    !is.null(cold), paste0("d <- text_toDate(datos[['", cold, "']])"),
+    !is.null(cold), paste0("d <- text_toDate(datos[['", cold, "']])[[1]]"),
     paste0("d <- seq(as.POSIXct('", ini, "'), as.POSIXct('", fin, "'), by = '",
            tipo, "')"))
   paste0(agregar, "\nseriedf <- data.frame(d = d, v = datos[['", col, "']])")

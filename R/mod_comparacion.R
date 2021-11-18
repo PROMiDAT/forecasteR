@@ -126,7 +126,7 @@ mod_comparacion_server <- function(input, output, session, updateData, rvmodelo)
       opts <- list(
         xAxis = list(
           type = "category", data = format(fecha, "%Y-%m-%d %H:%M:%S")),
-        yAxis = list(show = TRUE),
+        yAxis = list(show = TRUE, scale = T),
         series = series.tiempo
       )
       

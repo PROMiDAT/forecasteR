@@ -159,7 +159,7 @@ mod_desvio_server <- function(input, output, session, updateData, rvmodelo) {
       opts <- list(
         xAxis = list(
           type = "category", data = format(serie$date, "%Y-%m-%d %H:%M:%S")),
-        yAxis = list(show = TRUE),
+        yAxis = list(show = TRUE, scale = T),
         series = list(
           list(type = "line", data = serie$train, name = noms[1]),
           list(type = "line", data = serie$test,  name = noms[2]),

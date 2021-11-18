@@ -145,6 +145,7 @@ code.plots <- function(noms, colors) {
     "  e_line(serie = train, name = '", noms[1], "') |>\n",
     "  e_line(serie = test,  name = '", noms[2], "') |>\n",
     "  e_line(serie = pred,  name = '", noms[3], "') |>\n",
+    "  e_y_axis(min = min(var.numericas(serie), na.rm = T), max = max(var.numericas(serie), na.rm = T)) |>",
     "  e_datazoom() |> e_tooltip(trigger = 'axis') |> e_show_loading() |>\n",
     "  e_color(c('", paste(colors, collapse = "','"), "'))"
   )
@@ -158,11 +159,11 @@ code.plotnew <- function(tipo, noms) {
     "names(datos) <- c('s', 'p', 'liminf', 'limsup')\n",
     "datos$fecha <- seq(from = seriedf[[1]][1], by = '", tipo, "', length.out = nrow(datos))\n",
     "datos$fecha <- format(datos$fecha, '%Y-%m-%d %H:%M:%S')\n\n",
-    "datos |> e_charts(x = fecha) |>\n",
-    "  e_line(serie = s, name = '", noms[1], "') |>\n", 
-    "  e_line(serie = p, name = '", noms[2], "') |>\n",
-    "  e_band(min = liminf, max = limsup,\n",
-    "         name = c('", noms[3], "', '", noms[4], "')) |>\n",
-    "  e_tooltip(trigger = 'axis') |> e_datazoom() |> e_show_loading()"
+    "aux <- datos |> e_charts(fecha) |> e_line(s, name = ", noms[1], ") |>\n",
+    "  e_line(p, name = ", noms[2], ") |> e_datazoom() |> e_legend() |>\n",
+    "  e_band2(liminf, limsup, color = 'lightblue', itemStyle = list(borderWidth = 0)) |>\n",
+    "  e_y_axis(scale = TRUE) |> e_tooltip(trigger = 'axis') |> e_show_loading()\n\n",
+    "aux$x$opts$legend$data[[3]] <- NULL\n",
+    "aux$x$opts$series[[3]]$tooltip <- list(show = F)\naux"
   )
 }
