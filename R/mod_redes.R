@@ -183,14 +183,14 @@ mod_redes_server <- function(input, output, session, updateData, rvmodelo) {
     tryCatch({
       res <- div(
         style = "display: table; width: 100%; height: 70vh; overflow: scroll;",
-        infoBox(tr("mse", lg), rvmodelo$reds$error$MSE, NULL, 
-                icon("warning"), "red", 6, fill = T),
-        infoBox(tr("rmse", lg), rvmodelo$reds$error$RMSE, NULL, 
-                icon("warning"), "yellow", 6, fill = T),
-        infoBox(tr("re", lg), rvmodelo$reds$error$RE, NULL, 
-                icon("level-up"), "green", 6, fill = T),
-        infoBox(tr("cor", lg), rvmodelo$reds$error$CORR, NULL, 
-                icon("level-up"), "navy", 6, fill = T)
+        infoBox2(tr("mse", lg), rvmodelo$reds$error$MSE, NULL, 
+                 tags$img(src = 'img/ECM.svg', style = "max-width: 90%;"), "red", 6, fill = T),
+        infoBox2(tr("rmse", lg), rvmodelo$reds$error$RMSE, NULL, 
+                 tags$img(src = 'img/RECM.svg', style = "max-width: 90%;"), "yellow", 6, fill = T),
+        infoBox2(tr("re", lg), rvmodelo$reds$error$RE, NULL, 
+                 tags$img(src = 'img/ER.svg', style = "max-width: 90%;"), "green", 6, fill = T),
+        infoBox2(tr("cor", lg), rvmodelo$reds$error$CORR, NULL, 
+                 tags$img(src = 'img/correlacion.svg', style = "max-width: 90%;"), "navy", 6, fill = T)
       )
       isolate(updateData$code[['reds']][['docredse']] <- "error.reds")
       
