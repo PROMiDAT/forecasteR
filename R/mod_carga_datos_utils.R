@@ -57,13 +57,13 @@ text_toDate <- function(f) {
   e[['ms']] <- str_extract(f, paste(names(meses), collapse = "|"))
   if(any(is.na(e[['ms']]))) {
     names(meses) <- str_extract(names(meses), "\\w{3}")
-    e[['ms']] <- str_extract(f, paste(meses, collapse = "|"))
+    e[['ms']] <- str_extract(f, paste(names(meses), collapse = "|"))
   }
   if(!any(is.na(e[['ms']]))) {
     e[['ms']] <- meses[e[["ms"]]]
   }
   
-  aux <- str_extract(f, "\\d{2}")
+  aux <- str_extract(f, "\\d{1,2}")
   while(!any(is.na(aux))) {
     aux <- as.numeric(aux)
     if(max(aux) <= 12 & any(is.na(e[['ms']]))) {
@@ -80,8 +80,8 @@ text_toDate <- function(f) {
       e[['y']] <- aux
     }
     
-    f <- str_remove(f, "\\d{2}")
-    aux <- str_extract(f, "\\d{2}")
+    f <- str_remove(f, "\\d{1,2}")
+    aux <- str_extract(f, "\\d{1,2}")
   }
   
   tipo <- 'years'
