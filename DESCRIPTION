@@ -1,12 +1,11 @@
 Package: forecasteR
 Title: Time Series Forecast System
-Version: 1.1.4
+Version: 1.1.7
 Authors@R: 
     c(person(given = "Oldemar", family = "Rodriguez", role = c("aut", "cre"),
              email = "oldemar.rodriguez@ucr.ac.cr"),
-      person(given = "Diego", family = "Jiménez", role = c("ctb", "prg")))
-Published: 2021-10-19
-Description: A web application for displaying, analysing and forecasting univariate time series. Includes basic methods such as mean, naïve, seasonal naïve and drift, as well as more complex methods such as Holt-Winters Box,G and Jenkins, G (1976) doi:10.1111/jtsa.12194 and ARIMA Brockwell, P.J. and R.A.Davis (1991) doi:10.1007/978-1-4419-0320-4.
+      person(given = "Diego", family = "Jiménez", role = "aut"))
+Description: A web application for displaying, analysing and forecasting univariate time series. Includes basic methods such as mean, naïve, seasonal naïve and drift, as well as more complex methods such as Holt-Winters Box,G and Jenkins, G (1976) <doi:10.1111/jtsa.12194> and ARIMA Brockwell, P.J. and R.A.Davis (1991) <doi:10.1007/978-1-4419-0320-4>.
 License: GPL (>=2)
 Imports:
     DT,

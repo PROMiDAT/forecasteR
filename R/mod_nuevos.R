@@ -170,8 +170,8 @@ mod_nuevos_server <- function(input, output, session, updateData) {
   # Idioma
   observeEvent(updateData$idioma, {
     lg <- updateData$idioma
-    fechas <- list("years", "months", "days", "hours", "min", "sec")
-    names(fechas) <- tr(c("anual", "mes", "dia", "hora", "minuto", "segundo"), lg)
+    fechas <- list("years", "months", "days", "workdays", "hours", "min", "sec")
+    names(fechas) <- tr(c('anual', 'mes', 'dia', 'dialab', 'hora', 'minuto', 'segundo'), lg)
     updateSelectInput(session, "n_tipofecha", choices = fechas)
     
     models <- list("prom", "naiv", "snai", "drif", 
@@ -295,12 +295,20 @@ mod_nuevos_server <- function(input, output, session, updateData) {
   
   # Generar input de fechas
   output$n_uifechas <- renderUI({
+    w <- F
     if(input$n_tipofecha == "years") {
       f <- 'YYYY-01-01 00:00:00'
     } else if(input$n_tipofecha == "months") {
       f <- 'YYYY-MM-01 00:00:00'
     } else if(input$n_tipofecha == "days") {
       f <- 'YYYY-MM-DD 00:00:00'
+    } else if(input$n_tipofecha == "workdays") {
+      f <- 'YYYY-MM-DD 00:00:00'
+      w <- T
+    } else if(input$n_tipofecha == "hours") {
+      f <- 'YYYY-MM-DD HH:00:00'
+    } else if(input$n_tipofecha == "min") {
+      f <- 'YYYY-MM-DD HH:mm:00'
     } else {
       f <- 'YYYY-MM-DD HH:mm:SS'
     }
@@ -308,9 +316,9 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     texto <- tr("hasta", updateData$idioma)
     
     fluidRow(
-      col_5(datetimeInput(ns("n_startdate"), f)),
+      col_5(datetimeInput(ns("n_startdate"), f, w)),
       col_2(h4(texto, style = "text-align: center;")),
-      col_5(datetimeInput(ns("n_enddate"), f))
+      col_5(datetimeInput(ns("n_enddate"), f, w))
     )
   })
   
@@ -322,6 +330,11 @@ mod_nuevos_server <- function(input, output, session, updateData) {
       ini <- ymd_hms(input$n_startdate)
       if(tipofecha == "months") {
         fin <- ini + months(n)
+      } else if(tipofecha == "workdays") {
+        aux <- ini + duration(n + (n/5 * 2) + 2, units = "days")
+        aux <- seq(ini, aux, by = "days")
+        aux <- aux[wday(aux) %in% c(2, 3, 4, 5, 6)]
+        fin <- aux[n+1]
       } else {
         fin <- ini + duration(n, units = tipofecha)
       }
@@ -342,6 +355,16 @@ mod_nuevos_server <- function(input, output, session, updateData) {
       fin <- ymd_hms(input$n_enddate)
       if(tipofecha == "months") {
         ini <- fin - months(n)
+      } else if(tipofecha == "workdays") {
+        fechas <- c()
+        fecha  <- as.Date(fin)
+        while(length(fechas) <= n) {
+          if(wday(fecha) %in% c(2, 3, 4, 5, 6)) {
+            fechas <- c(fechas, fecha)
+          }
+          fecha <- fecha - days(1)
+        }
+        ini <- as.Date(fechas[length(fechas)], origin = "1970-01-01")
       } else {
         ini <- fin - duration(n, units = tipofecha)
       }
@@ -366,7 +389,15 @@ mod_nuevos_server <- function(input, output, session, updateData) {
       if(input$n_colFecha == "nuevo") {
         ini <- isolate(updateNew$ini)
         fin <- isolate(updateNew$fin)
-        fechas <- seq(ini, fin, by = isolate(input$n_tipofecha))
+        
+        if(isolate(input$n_tipofecha) == "workdays") {
+          fechas <- seq(as.Date(ini), as.Date(fin), by = "days")
+          fechas <- fechas[wday(fechas) %in% c(2, 3, 4, 5, 6)]
+          cod <- code.tsdf(input$sel_n_valor, ini, fin, "days")
+        } else {
+          fechas <- seq(ini, fin, by = isolate(input$n_tipofecha))
+          cod <- code.tsdf(input$sel_n_valor, ini, fin, isolate(input$n_tipofecha))
+        }
         
         updateNew$seriedf <- data.frame(
           fechas = fechas, valor = datos[[input$sel_n_valor]])
@@ -397,8 +428,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
   output$n_seriedatos <- DT::renderDataTable({
     datos  <- updateNew$seriedf
     idioma <- isolate(updateData$idioma)
-    nombre <- paste0(str_remove(isolate(input$n_file$name), '\\..[^\\.]*$'),
-                     "_ts")
+    nombre <- paste0(str_remove(isolate(input$n_file$name), '\\..[^\\.]*$'), "_ts")
     
     tryCatch({
       if(!is.null(datos)) {
@@ -613,7 +643,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
           text = '<i class="fa fa-download"></i>')))
       )
     }, error = function(e) {
-      showNotification(paste0("ERROR 00050: ", e), type = "error")
+      showNotification(paste0("ERROR 00080: ", e), type = "error")
       return(NULL)
     })
   })
@@ -627,7 +657,21 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     datos   <- data.frame(datos)
     names(datos) <- c("s", "p", "liminf", "limsup")
     ts_type <- isolate(updateNew$ts_type)
-    datos$fecha <- seq(from = seriedf[[1]][1], by = ts_type, length.out = nrow(datos))
+    if(ts_type == "workdays") {
+      aux <- vector(mode = "character", nrow(datos))
+      fini <- seriedf[[1]][1]
+      for (i in 1:length(aux)) {
+        while (wday(fini) %in% c(1, 7)) {
+          fini <- fini + days(1)
+        }
+        aux[i] <- as.character(fini)
+        fini <- fini + days(1)
+      }
+      datos$fecha <- as.Date(aux)
+    } else {
+      datos$fecha <- seq(from = seriedf[[1]][1], by = ts_type, length.out = nrow(datos))
+    }
+    
     datos$fecha <- format(datos$fecha, "%Y-%m-%d %H:%M:%S")
     noms <- tr(c("serie", "table_m"), updateData$idioma)
     
@@ -649,7 +693,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
       aux$x$opts$series[[3]]$tooltip <- list(show = F)
       return(aux)
     }, error = function(e) {
-      showNotification(paste0("ERROR 00050: ", e), type = "error")
+      showNotification(paste0("ERROR 00090: ", e), type = "error")
       return(NULL)
     })
   })

@@ -2,16 +2,20 @@
 #' @aliases forecasteR
 #' @docType package
 #' @title Time Series Forecast System
-#' @author Oldemar Rodriguez Rojas \cr
-#' Maintainer: Oldemar Rodriguez Rojas <oldemar.rodriguez@ucr.ac.cr>
+#' @author
+#' Maintainer: Oldemar Rodriguez Rojas <oldemar.rodriguez@ucr.ac.cr>\cr
+#' \itemize{
+#'   \item Oldemar Rodriguez Rojas <oldemar.rodriguez@ucr.ac.cr>
+#'   \item Diego Jiménez Alvarado
+#' }
 #' @description
-#' Performs a time series forecast.
+#' A web application for displaying, analysing and forecasting univariate time series. Includes basic methods such as mean, naïve, seasonal naïve and drift, as well as more complex methods such as Holt-Winters Box,G and Jenkins, G (1976) <doi:10.1111/jtsa.12194> and ARIMA Brockwell, P.J. and R.A.Davis (1991) <doi:10.1007/978-1-4419-0320-4>.
 #' @details
 #' \tabular{ll}{
 #' Package: \tab forecasteR\cr
 #' Type: \tab Package\cr
-#' Version: \tab 1.1.4\cr
-#' Date: \tab 2021-10-19\cr
+#' Version: \tab 1.1.7\cr
+#' Date: \tab 2022-03-18\cr
 #' License: \tab GPL (>=2)\cr
 #' }
 #' @keywords package
