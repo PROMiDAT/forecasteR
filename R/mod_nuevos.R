@@ -39,22 +39,18 @@ mod_nuevos_ui <- function(id){
             withLoader(DT::dataTableOutput(ns('n_tabladatos')), 
                        type = "html", loader = "loader4"))
         )),
-        col_1(actionButton(ns("btn_next3"), NULL, icon("angle-double-right"), style = btn_s_n))
+        col_1(actionButton(ns("btn_next3"), NULL, icon("angles-right"), style = btn_s_n))
       )
     ),
     div(
       id = ns("newtsdf"), style = "display: none;",
       div(
-        col_1(actionButton(ns("btn_prev3"), NULL, icon("angle-double-left"), style = btn_s)),
+        col_1(actionButton(ns("btn_prev3"), NULL, icon("backward"), style = btn_s)),
         col_10(box(
           title = labelInput("cargar"), status = "primary", width = 12,
           solidHeader = TRUE, collapsible = TRUE,
           fluidRow(
             col_4(
-              h3(labelInput('data')),
-              selectInput(ns("sel_n_valor"), labelInput('selvalor'), "")
-            ),
-            col_8(
               h3(labelInput('date')),
               radioButtons(
                 ns('n_colFecha'), NULL, inline = T, 
@@ -70,7 +66,15 @@ mod_nuevos_ui <- function(id){
                 selectInput(ns("n_tipofecha"), labelInput('seltipo'), NULL),
                 uiOutput(ns("n_uifechas"))
               )
-            ), 
+            ),
+            col_4(
+              h3(labelInput('data')),
+              selectInput(ns("sel_n_valor"), labelInput('selvalor'), "")
+            ),
+            col_4(
+              h3(labelInput('suav')),
+              numericInput(ns("num_suavizado"), labelInput('nsuav'), 5)
+            ),
             col_12(hr(), actionButton(ns("n_tsdfButton"), labelInput("cargar"), 
                                       width = "100%"))
           ),
@@ -79,13 +83,13 @@ mod_nuevos_ui <- function(id){
             withLoader(DT::dataTableOutput(ns('n_seriedatos')), 
                        type = "html", loader = "loader4"))
         )),
-        col_1(actionButton(ns("btn_next4"), NULL, icon("angle-double-right"), style = btn_s_n))
+        col_1(actionButton(ns("btn_next4"), NULL, icon("forward"), style = btn_s_n))
       )
     ),
     div(
       id = ns("newts"), style = "display: none;",
       div(
-        col_1(actionButton(ns("btn_prev4"), NULL, icon("angle-double-left"), style = btn_s)),
+        col_1(actionButton(ns("btn_prev4"), NULL, icon("angles-left"), style = btn_s)),
         col_10(box(
           title = labelInput("cargar"), status = "primary", 
           width = 12, solidHeader = T, collapsible = T,
@@ -93,23 +97,44 @@ mod_nuevos_ui <- function(id){
           actionButton(ns("n_tsButton"), labelInput("cargar"), width = "100%"),
           footer = echarts4rOutput(ns('plot_n_ts'), height = "60vh")
         )),
-        col_1(actionButton(ns("btn_next5"), NULL, icon("angle-double-right"), style = btn_s_n))
+        col_1(actionButton(ns("btn_next5"), NULL, icon("angles-right"), style = btn_s_n))
       )
     ),
     div(
       id = ns("newmodel"), style = "display: none;",
       div(
-        col_1(actionButton(ns("btn_prev5"), NULL, icon("angle-double-left"), style = btn_s)),
+        col_1(actionButton(ns("btn_prev5"), NULL, icon("angles-left"), style = btn_s)),
         col_10(box(
           title = labelInput("cargar"), status = "primary", 
           width = 12, solidHeader = T, collapsible = T,
           fluidRow(
-            col_4(selectInput(ns("sel_model"), labelInput('selmodel'), "")),
-            col_8(
-              numericInput(ns('n_pred'), labelInput('n_pred'), 10, 1, step = 5),
+            col_7(selectInput(ns("sel_model"), labelInput('selmodel'), "")),
+            col_5(numericInput(ns('n_pred'), labelInput('n_pred'), 10, 1, step = 5))
+          ), hr(style = "margin-top: 0;"),
+          fluidRow(
+            col_12(
               conditionalPanel(
                 condition = "input.sel_model == 'reds'", ns = ns,
                 numericInput(ns("n_tam"), labelInput("tamred"), 10, min = 0, step = 5),
+              ),
+              conditionalPanel(
+                condition = "input.sel_model == 'deep'", ns = ns,
+                tags$div(
+                  col_4(numericInput(ns("laginput"), labelInput("llag"), 1, width = "100%")),
+                  col_4(numericInput(ns("batinput"), labelInput("lbat"), 1, width = "100%")),
+                  col_4(numericInput(ns("epoinput"), labelInput("lepo"), 1, width = "100%")),
+                  col_4(selectInput(ns("losinput"), labelInput("llos"), c("mse", "mae"))),
+                  col_4(selectInput(ns("optinput"), labelInput("lopt"), c("adam", "rmsprop", "sgd"))),
+                  col_4(selectInput(ns("metinput"), labelInput("lmet"), c("mse", "mae", "mape"))),
+                  col_6(
+                    chooserInput(
+                      ns("capa"), labelInput("lcap"), labelInput("lmod"), 
+                      size = 10, idright = ns("rcapa"),
+                      c("rnn", "lstm", "dense", "dropout"), c()
+                    )
+                  ),
+                  col_6(uiOutput(ns("capaopts")))
+                )
               ),
               conditionalPanel(
                 condition = "input.sel_model == 'holt'", ns = ns,
@@ -140,13 +165,13 @@ mod_nuevos_ui <- function(id){
                        withLoader(verbatimTextOutput(ns("text_model")),
                                   type = "html", loader = "loader4"))
         )),
-        col_1(actionButton(ns("btn_next6"), NULL, icon("angle-double-right"), style = btn_s_n))
+        col_1(actionButton(ns("btn_next6"), NULL, icon("angles-right"), style = btn_s_n))
       )
     ),
     div(
       id = ns("newpred"), style = "display: none;",
       div(
-        col_1(actionButton(ns("btn_prev6"), NULL, icon("angle-double-left"), style = btn_s)),
+        col_1(actionButton(ns("btn_prev6"), NULL, icon("angles-left"), style = btn_s)),
         col_11(box(
           title = labelInput("cargar"), status = "primary", 
           width = 12, solidHeader = T, collapsible = T,
@@ -161,9 +186,14 @@ mod_nuevos_ui <- function(id){
     
 #' nuevos Server Functions
 #'
-#' @noRd 
+#' @noRd
+#' 
+#' @importFrom stringr str_detect
+#' 
 mod_nuevos_server <- function(input, output, session, updateData) {
-  ns <- session$ns
+  ns        <- session$ns
+  capas     <- list()
+  vars      <- rv(selcapa = NULL)
   updateNew <- rv(datos = NULL, seriedf = NULL, seriets = NULL, ts_type = NULL,
                   modelo = NULL, pred = NULL, ini = NULL, fin = NULL)
   
@@ -174,10 +204,10 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     names(fechas) <- tr(c('anual', 'mes', 'dia', 'dialab', 'hora', 'minuto', 'segundo'), lg)
     updateSelectInput(session, "n_tipofecha", choices = fechas)
     
-    models <- list("prom", "naiv", "snai", "drif", 
-                   "desc", "reds", "holt", "arim")
-    names(models) <- tr(c("prom", "naiv", "snai", "drif", 
-                          "desc", "reds", "holt", "arim"), lg)
+    models <- list("prom", "naiv", "snai", "drif", "desc",
+                   "reds", "deep", "holt", "arim")
+    names(models) <- tr(c("prom", "naiv", "snai", "drif", "desc",
+                          "reds", "deep", "holt", "arim"), lg)
     updateSelectInput(session, "sel_model", choices = models)
   })
   
@@ -403,14 +433,29 @@ mod_nuevos_server <- function(input, output, session, updateData) {
           fechas = fechas, valor = datos[[input$sel_n_valor]])
         updateNew$ts_type <- isolate(input$n_tipofecha)
         
-        cod <- code.tsdf(input$sel_n_valor, ini, fin, input$n_tipofecha)
         updateData$codenew <- list(doccarga = updateData$codenew$doccarga,
                                    doctsdf = cod)
       } else {
         fechas <- text_toDate(datos[[input$sel_n_fecha]])
         
-        updateNew$seriedf <- data.frame(
-          fechas = fechas[[1]], valor = datos[[input$sel_n_valor]])
+        df  <- data.frame(fechas = fechas[[1]], 
+                          valor = datos[[input$sel_n_valor]])
+        
+        total.fechas  <- seq(df$fechas[1], df$fechas[length(df$fechas)],
+                             by = "days")
+        faltan.fechas <- total.fechas[!total.fechas %in% df$fechas]
+        if(fechas[[2]] == "workdays") {
+          faltan.fechas <- faltan.fechas[!wday(faltan.fechas) %in% c(1, 7)]
+        }
+        
+        if(length(faltan.fechas) > 0) {
+          df <- union_all(df, data.frame(fechas = faltan.fechas))
+          df <- df[order(df$fechas), ]
+          df.suavizado <- smoothing(df$valor, input$num_suavizado)
+          df$valor[which(is.na(df$valor))] <- df.suavizado[which(is.na(df$valor))]
+        }
+        
+        updateNew$seriedf <- df
         updateNew$ts_type <- fechas[[2]]
         
         cod <- code.tsdf(input$sel_n_valor, cold = input$sel_n_fecha)
@@ -548,6 +593,85 @@ mod_nuevos_server <- function(input, output, session, updateData) {
   
   ############################# Generar Modelo ################################
   
+  observeEvent(input$capa, {
+    agregar  <- input$capa$right[!input$capa$right %in% names(capas)]
+    eliminar <- names(capas)[!names(capas) %in% input$capa$right]
+    
+    lags <- input$laginput
+    
+    if(length(agregar) == 1) {
+      if(str_detect(agregar, "lstm")) {
+        capas[[agregar]] <<- list(
+          layer = "lstm", units = 10, activation = "tanh")
+        
+      } else if(str_detect(agregar, "rnn")) {
+        capas[[agregar]] <<- list(
+          layer = "rnn", units = 10, activation = "tanh")
+        
+      } else if(str_detect(agregar, "dense")) {
+        capas[[agregar]] <<- list(
+          layer = "dense", units = 10, activation = "linear")
+        
+      } else if(str_detect(agregar, "dropout")) {
+        capas[[agregar]] <<- list(layer = "dropout", rate = 0.5)
+      }
+      
+      vars$selcapa <- agregar
+    } else if(length(eliminar) == 1) {
+      capas[[eliminar]] <<- NULL
+      vars$selcapa <- NULL
+    }
+  })
+  
+  observeEvent(input$rcapa, {
+    vars$selcapa <- input$rcapa
+  })
+  
+  output$capaopts <- renderUI({
+    nombre_capa <- vars$selcapa
+    
+    if(is.null(nombre_capa)) {
+      return(NULL)
+    }
+    
+    opts <- capas[[nombre_capa]]
+    
+    res <- NULL
+    
+    if(str_detect(opts$layer, "lstm|rnn|dense")) {
+      res <- tags$div(
+        numericInput(ns("units"), "Cantidad de unidades", opts$units),
+        selectInput(
+          ns("activation"), "Activacion", 
+          choices = c("linear", "tanh", "relu", "sigmoid", "softmax"),
+          opts$activation
+        )
+      )
+    } else if(str_detect(opts$layer, "dropout")) {
+      res <- tags$div(
+        fluidRow(col_12(
+          sliderInput(ns("rate"), "Ratio", 0, 100, opts$rate * 100, 1, post = "%")
+        ))
+      )
+    }
+    
+    return(res)
+  })
+  
+  observeEvent(input$units, {
+    units <- ifelse(is.na(input$units), 1, input$units)
+    capas[[vars$selcapa]][["units"]] <<- units
+  })
+  
+  observeEvent(input$activation, {
+    capas[[vars$selcapa]][["activation"]] <<- input$activation
+  })
+  
+  observeEvent(input$rate, {
+    rate <- input$rate / 100
+    capas[[vars$selcapa]][["rate"]] <<- rate
+  })
+  
   output$text_model <- renderPrint({
     btn <- input$btn_model
     isolate(updateNew$modelo <- NULL)
@@ -580,6 +704,59 @@ mod_nuevos_server <- function(input, output, session, updateData) {
       modelo <- nnetar(serie, size = tam)
       cod <- paste0("model <- nnetar(seriets, size = ", tam, ")\n",
                     "pred  <- forecast(model, h = ", n_pred, ", PI = T)")
+    } else if(sel_model == 'deep') {
+      laginput <- isolate(input$laginput)
+      batinput <- isolate(input$batinput)
+      epoinput <- isolate(input$epoinput)
+      losinput <- isolate(input$losinput)
+      optinput <- isolate(input$optinput)
+      metinput <- isolate(input$metinput)
+      
+      modelo <- keras_model_sequential()
+      cod    <- "model <- keras_keras_model_sequential()"
+      
+      for (capa in capas) {
+        if(capa$layer == "lstm") {
+          modelo <- modelo %>% layer_lstm(
+            units = capa$units, activation = capa$activation,
+            batch_input_shape = c(1, laginput, 1),
+            return_sequences = TRUE, stateful = TRUE)
+          cod <- paste0(cod, " %>% layer_lstm(
+            units = ", capa$units, ", activation = '", capa$activation, "',
+            batch_input_shape = c(1, ", laginput, ", 1),
+            return_sequences = TRUE, stateful = TRUE)")
+        } else if(capa$layer == "rnn") {
+          modelo <- modelo %>% layer_simple_rnn(
+            units = capa$units, activation = capa$activation,
+            batch_input_shape = c(1, laginput, 1),
+            return_sequences = TRUE, stateful = TRUE)
+          cod <- paste0(cod, " %>% layer_simple_rnn(
+            units = ", capa$units, ", activation = '", capa$activation, "',
+            batch_input_shape = c(1, ", laginput, ", 1),
+            return_sequences = TRUE, stateful = TRUE)")
+        } else if(capa$layer == "dense") {
+          modelo <- modelo %>% layer_dense(
+            units = capa$units, activation = capa$activation,
+            batch_input_shape = c(1, laginput, 1))
+          cod <- paste0(cod, " %>% layer_dense(
+            units = ", capa$units, ", activation = '", capa$activation, "',
+            batch_input_shape = c(1, ", laginput, ", 1))")
+        } else if(capa$layer == "dropout") {
+          modelo <- modelo %>% layer_dropout(rate = capa$rate)
+          cod <- paste0(cod, " %>% layer_dropout(rate = ", capa$rate, ")")
+        }
+      }
+      
+      modelo <- modelo %>% layer_dense(units = 1) %>%
+        compile(loss = losinput, optimizer = optinput, metrics = metinput)
+      cod <- paste0(cod, " %>% layer_dense(units = 1) %>%\n",
+                    "compile(loss = '", losinput, "', optimizer = '", optinput,
+                    "', metrics = '", metinput, "')")
+      
+      modelo <- tskeras(serie, modelo, laginput, batinput, epoinput)
+      cod <- paste0(
+        cod, "\n\n", "model <- tskeras(seriets, model, lag = ", laginput, ")\n",
+        "pred <- forecast(model, h = ", n_pred, ")")
     } else if(sel_model == 'holt') {
       alpha  <- isolate(input$n_alpha)
       beta   <- isolate(input$n_beta)
@@ -605,7 +782,9 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     }
     
     isolate(updateNew$modelo <- modelo)
-    if(sel_model %in% c('arim', 'desc')) {
+    if (sel_model == 'deep') {
+      isolate(updateNew$pred <- forecast.tskeras(modelo, h = n_pred))
+    } else if(sel_model %in% c('arim', 'desc')) {
       isolate(updateNew$pred <- forecast(modelo, h = n_pred))
     } else {
       isolate(updateNew$pred <- forecast(modelo, h = n_pred, PI = T))
@@ -631,31 +810,27 @@ mod_nuevos_server <- function(input, output, session, updateData) {
   
   ########################### Generar Predicción ##############################
   
-  output$df_new <- DT::renderDataTable({
-    datos  <- data.frame(updateNew$pred)
-    nombre <- str_remove(isolate(input$n_file$name), '\\..[^\\.]*$')
+  listpred <- reactive({
+    sel_model <- isolate(input$sel_model)
+    seriedf   <- isolate(updateNew$seriedf)
+    serie     <- isolate(updateNew$seriets)
+    pred      <- updateNew$pred
+    datos     <- NULL
     
-    tryCatch({
-      DT::datatable(
-        datos, selection = 'none', rownames = F, extensions = 'Buttons',
-        options = list(dom = 'Bfrtip', scrollY = "20vh", buttons = list(list(
-          extend = 'csv', filename = paste0(nombre, "_pred"), 
-          text = '<i class="fa fa-download"></i>')))
-      )
-    }, error = function(e) {
-      showNotification(paste0("ERROR 00080: ", e), type = "error")
-      return(NULL)
-    })
-  })
-  
-  output$plot_pred <- renderEcharts4r({
-    seriedf <- isolate(updateNew$seriedf)
-    serie   <- isolate(updateNew$seriets)
-    pred    <- updateNew$pred
-    datos   <- ts.union(pred$mean, pred$lower[, 2], pred$upper[, 2])
-    datos   <- ts.union(serie, datos)
-    datos   <- data.frame(datos)
-    names(datos) <- c("s", "p", "liminf", "limsup")
+    if (sel_model == 'deep') {
+      n_pred  <- length(pred)
+      datos   <- ts.union(pred, NA, NA)
+      datos   <- ts.union(serie, datos)
+      datos   <- data.frame(datos)
+      names(datos) <- c("s", "table_m", "linf", "lsup")
+    } else {
+      n_pred  <- length(pred$mean)
+      datos   <- ts.union(pred$mean, pred$lower[, 2], pred$upper[, 2])
+      datos   <- ts.union(serie, datos)
+      datos   <- data.frame(datos)
+      names(datos) <- c("s", "table_m", "linf", "lsup")
+    }
+    
     ts_type <- isolate(updateNew$ts_type)
     if(ts_type == "workdays") {
       aux <- vector(mode = "character", nrow(datos))
@@ -667,12 +842,43 @@ mod_nuevos_server <- function(input, output, session, updateData) {
         aux[i] <- as.character(fini)
         fini <- fini + days(1)
       }
-      datos$fecha <- as.Date(aux)
+      datos$date <- as.Date(aux)
     } else {
-      datos$fecha <- seq(from = seriedf[[1]][1], by = ts_type, length.out = nrow(datos))
+      datos$date <- seq(from = seriedf[[1]][1], by = ts_type, length.out = nrow(datos))
     }
     
-    datos$fecha <- format(datos$fecha, "%Y-%m-%d %H:%M:%S")
+    datos$date <- format(datos$date, "%Y-%m-%d %H:%M:%S")
+    dfpred <- tail(datos, n_pred)
+    dfpred <- dfpred[, c("date", "table_m", "linf", "lsup")]
+    
+    return(list(df = datos, dfpred = dfpred))
+  })
+  
+  output$df_new <- DT::renderDataTable({
+    datos <- listpred()$dfpred
+    noms  <- tr(colnames(datos), updateData$idioma)
+    colnames(datos) <- paste('<span style="color: white">', noms, '</span>')
+    nombre <- str_remove(isolate(input$n_file$name), '\\..[^\\.]*$')
+    
+    tryCatch({
+      DT::datatable(
+        datos, selection = 'none', rownames = FALSE, 
+        extensions = 'Buttons', escape = FALSE,
+        options = list(
+          dom = 'Bfrtip', scrollY = "20vh", pageLength = 5,
+          buttons = list(list(
+            extend = 'csv', filename = paste0(nombre, "_pred"), 
+            text = '<i class="fa fa-download" style="color: white;"></i>')))
+      ) %>% DT::formatStyle(columns = names(datos), color="white")
+    }, error = function(e) {
+      showNotification(paste0("ERROR 00080: ", e), type = "error")
+      return(NULL)
+    })
+  }, server = F)
+  
+  output$plot_pred <- renderEcharts4r({
+    datos <- listpred()$df
+    ts_type <- isolate(updateNew$ts_type)
     noms <- tr(c("serie", "table_m"), updateData$idioma)
     
     tryCatch({
@@ -684,9 +890,9 @@ mod_nuevos_server <- function(input, output, session, updateData) {
         docmodel = updateData$codenew$docmodel,
         docpred  = cod))
       
-      aux <- datos |> e_charts(fecha) |> e_line(s, name = noms[1]) |> 
-        e_line(p, name = noms[2]) |> e_datazoom() |> e_legend() |> 
-        e_band2(liminf, limsup, color = "lightblue", itemStyle = list(borderWidth = 0)) |> 
+      aux <- datos |> e_charts(date) |> e_line(s, name = noms[1]) |> 
+        e_line(table_m, name = noms[2]) |> e_datazoom() |> e_legend() |> 
+        e_band2(linf, lsup, color = "lightblue", itemStyle = list(borderWidth = 0)) |> 
         e_y_axis(scale = TRUE) |> e_tooltip(trigger = 'axis') |> e_show_loading()
       
       aux$x$opts$legend$data[[3]] <- NULL
