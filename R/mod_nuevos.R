@@ -18,7 +18,7 @@ mod_nuevos_ui <- function(id){
       id = ns("newdf"),
       div(col_11(
         box(
-          title = labelInput("data"), status = "primary", width = 12,
+          title = labelInput("doccarga"), status = "primary", width = 12,
           solidHeader = TRUE, collapsible = TRUE,
           flowLayout(
             checkboxInput(ns('n_header'), labelInput("header"), value = T),
@@ -28,10 +28,17 @@ mod_nuevos_ui <- function(id){
             ),
             radioButtons(ns('n_dec'), labelInput("separadordec"), c(',', '.'),
                          inline = T),
-            fileInput(
-              ns('n_file'), labelInput("cargarchivo"), width = "100%",
-              placeholder = "", buttonLabel = labelInput("subir"),
-              accept = c('text/csv', '.csv', '.txt'))
+            fluidRow(
+              col_10(
+                fileInput(
+                  ns('n_file'), labelInput("cargarchivo"), width = "100%",
+                  placeholder = "", buttonLabel = labelInput("subir"),
+                  accept = c('text/csv', '.csv', '.txt'))
+              ),
+              col_2(
+                actionButton(ns("prevfile"), NULL, icon = icon("eye"), style = "margin-top: 25px;")
+              )
+            )
           ), hr(),
           actionButton(ns("n_loadButton"), labelInput("cargar"), width = "100%"),
           footer = div(
@@ -47,7 +54,7 @@ mod_nuevos_ui <- function(id){
       div(
         col_1(actionButton(ns("btn_prev3"), NULL, icon("backward"), style = btn_s)),
         col_10(box(
-          title = labelInput("cargar"), status = "primary", width = 12,
+          title = labelInput("serie"), status = "primary", width = 12,
           solidHeader = TRUE, collapsible = TRUE,
           fluidRow(
             col_4(
@@ -91,7 +98,7 @@ mod_nuevos_ui <- function(id){
       div(
         col_1(actionButton(ns("btn_prev4"), NULL, icon("angles-left"), style = btn_s)),
         col_10(box(
-          title = labelInput("cargar"), status = "primary", 
+          title = labelInput("serie"), status = "primary", 
           width = 12, solidHeader = T, collapsible = T,
           selectInput(ns("sel_n_patron"), labelInput('selpatron'), ""), hr(),
           actionButton(ns("n_tsButton"), labelInput("cargar"), width = "100%"),
@@ -105,7 +112,7 @@ mod_nuevos_ui <- function(id){
       div(
         col_1(actionButton(ns("btn_prev5"), NULL, icon("angles-left"), style = btn_s)),
         col_10(box(
-          title = labelInput("cargar"), status = "primary", 
+          title = labelInput("ejecutar"), status = "primary", 
           width = 12, solidHeader = T, collapsible = T,
           fluidRow(
             col_7(selectInput(ns("sel_model"), labelInput('selmodel'), "")),
@@ -160,7 +167,7 @@ mod_nuevos_ui <- function(id){
               )
             )
           ), hr(),
-          actionButton(ns("btn_model"), labelInput("cargar"), width = "100%"),
+          actionButton(ns("btn_model"), labelInput("ejecutar"), width = "100%"),
           footer = div(style = "height: 40vh; overflow: scroll;", 
                        withLoader(verbatimTextOutput(ns("text_model")),
                                   type = "html", loader = "loader4"))
@@ -173,7 +180,7 @@ mod_nuevos_ui <- function(id){
       div(
         col_1(actionButton(ns("btn_prev6"), NULL, icon("angles-left"), style = btn_s)),
         col_11(box(
-          title = labelInput("cargar"), status = "primary", 
+          title = labelInput("table_m"), status = "primary", 
           width = 12, solidHeader = T, collapsible = T,
           div(withLoader(DT::dataTableOutput(ns('df_new')), 
                          type = "html", loader = "loader4")),
@@ -246,6 +253,32 @@ mod_nuevos_server <- function(input, output, session, updateData) {
   })
   
   ############################# Carga de datos ################################
+  
+  # Previsualizar archivo
+  observeEvent(input$prevfile, {
+    ruta <- isolate(input$n_file)
+    if(is.null(ruta)) {
+      showNotification("ERROR 00005: Debe cargar un archivo.", 
+                       type = "error")
+    } else {
+      con = file(ruta$datapath, "r")
+      prev <- ""
+      for (i in 1:10) {
+        line = readLines(con, n = 1)
+        if ( length(line) == 0 ) {
+          break
+        }
+        prev <- paste0(prev, line, "<br>")
+      }
+      close(con)
+      showModal(
+        modalDialog(
+          HTML(prev), style = "overflow: auto;", easyClose = TRUE,
+          title = tr("vfil", updateData$idioma), footer = NULL, size = "xl"
+        )
+      )
+    }
+  })
   
   # Función del botón n_loadButton
   observeEvent(input$n_loadButton, {
@@ -441,15 +474,19 @@ mod_nuevos_server <- function(input, output, session, updateData) {
         df  <- data.frame(fechas = fechas[[1]], 
                           valor = datos[[input$sel_n_valor]])
         
-        total.fechas  <- seq(df$fechas[1], df$fechas[length(df$fechas)],
-                             by = "days")
-        faltan.fechas <- total.fechas[!total.fechas %in% df$fechas]
         if(fechas[[2]] == "workdays") {
+          total.fechas  <- seq(df$fechas[1], df$fechas[length(df$fechas)],
+                               by = "days")
+          faltan.fechas <- total.fechas[!total.fechas %in% df$fechas]
           faltan.fechas <- faltan.fechas[!wday(faltan.fechas) %in% c(1, 7)]
+        } else {
+          total.fechas  <- seq(df$fechas[1], df$fechas[length(df$fechas)],
+                               by = fechas[[2]])
+          faltan.fechas <- total.fechas[!total.fechas %in% df$fechas]
         }
         
         if(length(faltan.fechas) > 0) {
-          df <- union_all(df, data.frame(fechas = faltan.fechas))
+          df <- merge(df, data.frame(fechas = faltan.fechas), all = TRUE)
           df <- df[order(df$fechas), ]
           df.suavizado <- smoothing(df$valor, input$num_suavizado)
           df$valor[which(is.na(df$valor))] <- df.suavizado[which(is.na(df$valor))]
@@ -516,20 +553,20 @@ mod_nuevos_server <- function(input, output, session, updateData) {
         fechas <- list(12)
         names(fechas) <- c(tr("anual", lg))
       } else if(tipo == "days") {
-        fechas <- list(365, 7)
-        names(fechas) <- c(tr("anual", lg), tr("semanal", lg))
+        fechas <- list(365, 30, 7)
+        names(fechas) <- c(tr("anual", lg), tr("mes", lg), tr("semanal", lg))
       } else if(tipo == "workdays") {
         fechas <- list(260, 5)
         names(fechas) <- c(tr("anual", lg), tr("semanal", lg))
       } else if(tipo == "hours") {
-        fechas <- list(24, 8760)
-        names(fechas) <- c(tr("dia", lg), tr("anual", lg))
+        fechas <- list(8760, 720, 24)
+        names(fechas) <- c(tr("anual", lg), tr("mes", lg), tr("dia", lg))
       } else if(tipo == "min") {
-        fechas <- list(60, 1440, 525600)
-        names(fechas) <- tr(c('hora', 'dia', 'anual'), lg)
+        fechas <- list(525600, 43200, 1440, 60)
+        names(fechas) <- tr(c('anual', 'mes', 'dia', 'hora'), lg)
       } else if(tipo == "sec") {
-        fechas <- list(60, 3600, 86400, 31536000)
-        names(fechas) <- tr(c('minuto', 'hora', 'dia', 'anual'), lg)
+        fechas <- list(31536000, 2592000, 86400, 3600, 60)
+        names(fechas) <- tr(c('anual', 'mes', 'dia', 'hora', 'minuto'), lg)
       }
       
       updateSelectInput("sel_n_patron", session = session, choices = fechas)
@@ -783,7 +820,7 @@ mod_nuevos_server <- function(input, output, session, updateData) {
     
     isolate(updateNew$modelo <- modelo)
     if (sel_model == 'deep') {
-      isolate(updateNew$pred <- forecast.tskeras(modelo, h = n_pred))
+      isolate(updateNew$pred <- pred.tskeras(modelo, h = n_pred))
     } else if(sel_model %in% c('arim', 'desc')) {
       isolate(updateNew$pred <- forecast(modelo, h = n_pred))
     } else {

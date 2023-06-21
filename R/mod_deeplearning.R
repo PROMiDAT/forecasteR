@@ -245,7 +245,7 @@ mod_deep_server <- function(input, output, session, updateData, rvmodelo) {
       
       modelo <- tskeras(train, modelo, laginput, batinput, epoinput)
       
-      pred <- forecast.tskeras(modelo, length(test))
+      pred <- pred.tskeras(modelo, length(test))
       isolate(rvmodelo$deep$model <- modelo$m)
       isolate(rvmodelo$deep$pred  <- pred)
       isolate(rvmodelo$deep$error <- tabla.errores(list(pred), test, "deep"))
@@ -253,7 +253,7 @@ mod_deep_server <- function(input, output, session, updateData, rvmodelo) {
       cod <- paste0(
         cod, "\n\n",
         "modelo.deep <- tskeras(train, modelo.deep, lag = ", laginput, ")\n",
-        "pred.deep   <- forecast.tskeras(modelo.deep, h = length(test))\n",
+        "pred.deep   <- pred.tskeras(modelo.deep, h = length(test))\n",
         "error.deep  <- tabla.errores(list(pred.deep), test, 'Deep Learning')")
       isolate(updateData$code[['deep']] <- list(docdeepm = cod))
       

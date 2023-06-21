@@ -40,10 +40,10 @@ mod_t_c_server <- function(input, output, session, updateData) {
   
   # Gráfico de Tendencia y Ciclicidad
   output$plot_tc <- renderEcharts4r({
-    serie   <- updateData$seriets
-    datos   <- updateData$seriedf
+    serie <- updateData$seriets
+    datos <- updateData$seriedf
     
-    noms <- c(tr("serie", updateData$idioma), tr("tend", updateData$idioma),
+    noms  <- c(tr("serie", updateData$idioma), tr("tend", updateData$idioma),
               tr("cicl", updateData$idioma))
     colors <- c(input$col_ts, input$col_reg, input$col_fou)
     

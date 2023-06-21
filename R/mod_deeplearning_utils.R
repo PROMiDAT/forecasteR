@@ -75,7 +75,7 @@ tskeras <- function(x, model, lag = 1, batch_size = 1, epochs = 20, verbose = 0)
 #'
 #' @author Diego Jimenez <diego.jimenez@promidat.com>
 #' @return Point forecasts as a time series.
-#' @export forecast.tskeras
+#' @export
 #' @import keras
 #' @importFrom stats predict
 #' @examples
@@ -88,10 +88,10 @@ tskeras <- function(x, model, lag = 1, batch_size = 1, epochs = 20, verbose = 0)
 #'   layer_dense(units = 1) %>%
 #'   compile(loss = 'mse', optimizer = 'adam', metrics = 'mse')
 #'   modelo.deep <- tskeras(AirPassengers, modelo.deep, lag = 12, epochs = 1)
-#'   forecast.tskeras(modelo.deep, h = 12)
+#'   pred.tskeras(modelo.deep, h = 12)
 #' }
 #' 
-forecast.tskeras <- function(object, h = 1) {
+pred.tskeras <- function(object, h = 1) {
   pred <- c()
   x_vars <- object$vars
   

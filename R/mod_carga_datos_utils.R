@@ -50,6 +50,7 @@ text_toDate <- function(f) {
              "september" = 9, "october" = 10, "november" = 11, "december" = 12)
   f <- str_to_lower(f)
   
+  tipo <- 'years'
   e[['y']] <- str_extract(f, "\\d{4}")
   f <- str_remove(f, "\\d{4}")
   
@@ -59,6 +60,7 @@ text_toDate <- function(f) {
   if(any(is.na(e[['ms']]))) {
     names(meses) <- str_extract(names(meses), "\\w{3}")
     e[['ms']] <- str_extract(f, paste(names(meses), collapse = "|"))
+    tipo <- 'months'
   }
   if(!any(is.na(e[['ms']]))) {
     e[['ms']] <- meses[e[["ms"]]]
@@ -93,9 +95,9 @@ text_toDate <- function(f) {
   
   if(diferencia >= 31539600) {
     tipo <- 'years'
-  } else if(diferencia > 86400) {
+  } else if(diferencia >= 2419200) {
     tipo <- 'months'
-  } else if(diferencia == 86400) {
+  } else if(diferencia >= 86400) {
     tipo <- 'days'
   } else if(diferencia == 3600) {
     tipo <- 'hours'
